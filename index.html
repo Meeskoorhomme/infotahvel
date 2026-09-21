@@ -20,6 +20,7 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --radius: 12px;
             --error-color: #ef4444;
+            --warning-color: #f59e0b;
         }
 
         * {
@@ -223,16 +224,6 @@
             line-height: 1.4;
         }
 
-        .post-it-time {
-            margin-top: 0.75rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #92400e;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
         .sidebar-card {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -411,10 +402,14 @@
             color: var(--text-muted);
         }
 
-        .delete-btn {
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
             background: none;
             border: none;
-            color: var(--error-color);
             cursor: pointer;
             font-size: 0.85rem;
             display: flex;
@@ -422,6 +417,16 @@
             gap: 0.2rem;
         }
 
+        .edit-btn {
+            color: var(--primary);
+        }
+        .edit-btn:hover {
+            text-decoration: underline;
+        }
+
+        .delete-btn {
+            color: var(--error-color);
+        }
         .delete-btn:hover {
             text-decoration: underline;
         }
@@ -431,12 +436,6 @@
             border: 1px solid var(--border);
             padding: 1.25rem;
             border-radius: var(--radius);
-        }
-
-        .auth-box h3 {
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
         }
 
         .divider {
@@ -539,7 +538,6 @@
 
                 <div class="divider">või e-mailiga</div>
 
-                <!-- Sisselogimise vorm -->
                 <form id="emailLoginForm">
                     <div class="form-group">
                         <label for="loginEmail">E-mail</label>
@@ -553,7 +551,6 @@
                     <div id="loginError" class="error-msg"></div>
                 </form>
 
-                <!-- Registreerimise vorm -->
                 <form id="emailRegisterForm" class="hidden">
                     <div class="form-group">
                         <label for="regName">Sinu Nimi</label>
@@ -576,10 +573,11 @@
                 </div>
             </div>
 
-            <!-- Sisse logitud kasutajale lisamisvorm -->
+            <!-- Sisse logitud kasutajale lisamis- / muutmisvorm -->
             <div id="postSection" class="sidebar-card hidden">
-                <h2><span class="material-icons-round">add_box</span> Lisa teade või sündmus</h2>
+                <h2 id="formHeading"><span class="material-icons-round">add_box</span> Lisa teade või sündmus</h2>
                 <form id="postForm">
+                    <input type="hidden" id="editingPostId" value="">
                     <div class="form-group">
                         <label for="postTitle">Pealkiri</label>
                         <input type="text" id="postTitle" class="form-control" required placeholder="Nt. Kevadine üldkoosolek">
@@ -595,28 +593,31 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="postDate">Kuupäev</label>
+                            <label for="postDate">Sündmuse kuupäev</label>
                             <input type="date" id="postDate" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="postTime">Kellaaeg</label>
+                            <label for="postTime">Sündmuse kellaaeg</label>
                             <input type="time" id="postTime" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="postLocation">Asukoht</label>
-                        <input type="text" id="postLocation" class="form-control" placeholder="Nt. Saal / Zoom">
+                        <label for="postLocation">Sündmuse asukoht</label>
+                        <input type="text" id="postLocation" class="form-control" placeholder="Nt. Peasaal / Zoom">
                     </div>
                     <div class="form-group">
                         <label for="postText">Sisu</label>
                         <textarea id="postText" class="form-control" required placeholder="Kirjelda sündmust või infot..."></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Avalda tahvlile</button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">Avalda tahvlile</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-outline hidden">Katkesta</button>
+                    </div>
                 </form>
             </div>
         </aside>
 
-        <!-- Parem veerg: Infotahbli postituste voog -->
+        <!-- Parem veerg: Infotahvli postituste voog -->
         <section class="board-container">
             <div class="board-header">
                 <h2>Aktiivsed teated ja sündmused</h2>
@@ -640,13 +641,13 @@
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ==========================================
         // SISESTA SIIA OMA FIREBASE KONFIGURATSIOON
         // ==========================================
         const firebaseConfig = {
-            apiKey: "AIzaSyBkzcwHXvkDAL3GWnRi74uYmzaQHZfb2vU",
+           apiKey: "AIzaSyBkzcwHXvkDAL3GWnRi74uYmzaQHZfb2vU",
   authDomain: "meeskoor-homme-infotahvel.firebaseapp.com",
   projectId: "meeskoor-homme-infotahvel",
   storageBucket: "meeskoor-homme-infotahvel.firebasestorage.app",
@@ -678,6 +679,11 @@
         const loadingText = document.getElementById('loadingText');
         const nextEventBody = document.getElementById('nextEventBody');
 
+        const formHeading = document.getElementById('formHeading');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editingPostIdInput = document.getElementById('editingPostId');
+
         const googleLoginBtn = document.getElementById('googleLoginBtn');
         const emailLoginForm = document.getElementById('emailLoginForm');
         const emailRegisterForm = document.getElementById('emailRegisterForm');
@@ -689,7 +695,7 @@
         let currentUser = null;
         let isRegistering = false;
 
-        // Vormi vahetamine
+        // Vormi vahetamine (Sisselogimine / Registreerimine)
         switchAuthBtn.addEventListener('click', () => {
             isRegistering = !isRegistering;
             if (isRegistering) {
@@ -779,38 +785,95 @@
             });
         }
 
+        // Sündmuse lisamine või muutmine
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) return;
 
+            const postId = editingPostIdInput.value;
             const title = document.getElementById('postTitle').value;
             const category = document.getElementById('postCategory').value;
             const date = document.getElementById('postDate').value;
             const time = document.getElementById('postTime').value;
             const location = document.getElementById('postLocation').value;
             const text = document.getElementById('postText').value;
-            const displayName = currentUser.displayName || currentUser.email.split('@')[0];
 
             try {
-                await addDoc(collection(db, "posts"), {
-                    title,
-                    category,
-                    date: date || null,
-                    time: time || null,
-                    location: location || null,
-                    text,
-                    authorName: displayName,
-                    authorEmail: currentUser.email,
-                    authorPhoto: currentUser.photoURL || null,
-                    uid: currentUser.uid,
-                    createdAt: new Date()
-                });
-                postForm.reset();
+                if (postId) {
+                    // Uuenda olemasolevat postitust
+                    await updateDoc(doc(db, "posts", postId), {
+                        title,
+                        category,
+                        date: date || null,
+                        time: time || null,
+                        location: location || null,
+                        text
+                    });
+                    resetFormState();
+                } else  {
+                    // Loo uus postitus
+                    const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+                    await addDoc(collection(db, "posts"), {
+                        title,
+                        category,
+                        date: date || null,
+                        time: time || null,
+                        location: location || null,
+                        text,
+                        authorName: displayName,
+                        authorEmail: currentUser.email,
+                        authorPhoto: currentUser.photoURL || null,
+                        uid: currentUser.uid,
+                        createdAt: new Date()
+                    });
+                    postForm.reset();
+                }
             } catch (error) {
-                console.error("Postituse lisamine ebaõnnestus:", error);
+                console.error("Postituse salvestamine ebaõnnestus:", error);
                 alert("Viga postituse salvestamisel.");
             }
         });
+
+        cancelEditBtn.addEventListener('click', () => {
+            resetFormState();
+        });
+
+        function resetFormState() {
+            postForm.reset();
+            editingPostIdInput.value = "";
+            formHeading.innerHTML = `<span class="material-icons-round">add_box</span> Lisa teade või sündmus`;
+            submitBtn.textContent = "Avalda tahvlile";
+            cancelEditBtn.classList.add('hidden');
+        }
+
+        // Globaalsed funktsioonid muutmiseks ja kustutamiseks
+        window.editPost = function(id, title, category, date, time, location, text) {
+            editingPostIdInput.value = id;
+            document.getElementById('postTitle').value = title;
+            document.getElementById('postCategory').value = category;
+            document.getElementById('postDate').value = date || '';
+            document.getElementById('postTime').value = time || '';
+            document.getElementById('postLocation').value = location || '';
+            document.getElementById('postText').value = text;
+
+            formHeading.innerHTML = `<span class="material-icons-round">edit</span> Muuda teadet või sündmust`;
+            submitBtn.textContent = "Salvesta muudatused";
+            cancelEditBtn.classList.remove('hidden');
+            postSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.deletePost = async function(postId) {
+            if (confirm("Kas oled kindel, et soovid selle teate kustutada?")) {
+                try {
+                    await deleteDoc(doc(db, "posts", postId));
+                    if (editingPostIdInput.value === postId) {
+                        resetFormState();
+                    }
+                } catch (error) {
+                    alert("Sul pole õigust seda postitust kustutada.");
+                }
+            }
+        }
 
         function loadPosts() {
             if (!db) return;
@@ -830,7 +893,7 @@
                     posts.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // Leia ajaliselt järgmine sündmus (millel on kuupäev määratud ja mis pole möödas)
+                // Leia ajaliselt järgmine tulevane sündmus
                 const now = new Date().toISOString().split('T')[0];
                 const upcomingEvents = posts
                     .filter(p => p.date && p.date >= now)
@@ -850,12 +913,12 @@
                 // Kuva kaardid
                 posts.forEach((post) => {
                     const dateStr = post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just nüüd';
-                    const canDelete = currentUser && currentUser.uid === post.uid;
+                    const isAuthor = currentUser && currentUser.uid === post.uid;
                     const authorInitial = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'K';
 
                     let authorHtml = post.authorPhoto ? `<img src="${post.authorPhoto}" alt="">` : `<span class="mini-avatar">${authorInitial}</span>`;
 
-                    // Kalendri linkide genereerimine
+                    // Kalendri lingid
                     let calendarBtnsHtml = '';
                     if (post.date) {
                         const googleUrl = createGoogleCalendarUrl(post);
@@ -883,6 +946,24 @@
                         `;
                     }
 
+                    // Muuda ja Kustuta nupud autorile
+                    let actionsHtml = '';
+                    if (isAuthor) {
+                        const safeTitle = escapeAttr(post.title);
+                        const safeText = escapeAttr(post.text);
+                        const safeLoc = escapeAttr(post.location || '');
+                        actionsHtml = `
+                            <div class="card-actions">
+                                <button class="action-btn edit-btn" onclick="editPost('${post.id}', '${safeTitle}', '${post.category}', '${post.date || ''}', '${post.time || ''}', '${safeLoc}', '${safeText}')">
+                                    <span class="material-icons-round" style="font-size: 1rem;">edit</span> Muuda
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deletePost('${post.id}')">
+                                    <span class="material-icons-round" style="font-size: 1rem;">delete</span> Kustuta
+                                </button>
+                            </div>
+                        `;
+                    }
+
                     const card = document.createElement('div');
                     card.className = 'post-card';
                     card.innerHTML = `
@@ -902,7 +983,7 @@
                             ${calendarBtnsHtml}
                             <div class="post-footer">
                                 <span>${dateStr}</span>
-                                ${canDelete ? `<button class="delete-btn" onclick="deletePost('${post.id}')"><span class="material-icons-round" style="font-size: 1rem;">delete</span> Kustuta</button>` : ''}
+                                ${actionsHtml}
                             </div>
                         </div>
                     `;
@@ -914,7 +995,6 @@
             });
         }
 
-        // Abifunktsioon Google Calendar URL-i genereerimiseks
         function createGoogleCalendarUrl(post) {
             const title = encodeURIComponent(post.title);
             const details = encodeURIComponent(post.text);
@@ -933,7 +1013,6 @@
             return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${datesParam}`;
         }
 
-        // Abifunktsioon Outlook Calendar URL-i genereerimiseks
         function createOutlookCalendarUrl(post) {
             const title = encodeURIComponent(post.title);
             const body = encodeURIComponent(post.text);
@@ -951,21 +1030,16 @@
             return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&body=${body}&location=${location}&startdt=${startdt}&enddt=${enddt}`;
         }
 
-        window.deletePost = async function(postId) {
-            if (confirm("Kas oled kindel, et soovid selle teate kustutada?")) {
-                try {
-                    await deleteDoc(doc(db, "posts", postId));
-                } catch (error) {
-                    alert("Sul pole õigust seda postitust kustutada.");
-                }
-            }
-        }
-
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>'"]/g, 
                 tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
             );
+        }
+
+        function escapeAttr(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
     </script>
 </body>
