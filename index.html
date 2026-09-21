@@ -625,6 +625,10 @@
                 <form id="postForm">
                     <input type="hidden" id="editingPostId" value="">
                     <div class="form-group">
+                        <label for="guestName">Nimi (kui oled külaline)</label>
+                        <input type="text" id="guestName" class="form-control" placeholder="Sinu nimi" maxlength="60">
+                    </div>
+                    <div class="form-group">
                         <label for="postTitle">Pealkiri</label>
                         <input type="text" id="postTitle" class="form-control" required placeholder="Nt. Kevadine üldkoosolek">
                     </div>
@@ -721,6 +725,23 @@
 
         const googleProvider = new GoogleAuthProvider();
         const LOCAL_STORAGE_KEY = 'meeskoor-posts-v1';
+        const GUEST_NAME_KEY = 'meeskoor-guest-name';
+        const GUEST_UID_KEY = 'meeskoor-guest-uid';
+
+        function getGuestProfile() {
+            let guestUid = localStorage.getItem(GUEST_UID_KEY);
+            if (!guestUid) {
+                guestUid = `guest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                localStorage.setItem(GUEST_UID_KEY, guestUid);
+            }
+
+            const guestName = localStorage.getItem(GUEST_NAME_KEY) || 'Külaline';
+            return {
+                displayName: guestName,
+                email: 'guest@local',
+                uid: guestUid
+            };
+        }
 
         function readLocalPosts() {
             try {
@@ -860,6 +881,20 @@
             await signOut(auth);
         });
 
+        function setupGuestIdentityField() {
+            const guestInput = document.getElementById('guestName');
+            if (!guestInput) return;
+
+            const guestFieldWrapper = guestInput.closest('.form-group');
+            if (guestFieldWrapper) {
+                guestFieldWrapper.classList.toggle('hidden', Boolean(currentUser));
+            }
+
+            const profile = getGuestProfile();
+            guestInput.value = profile.displayName === 'Külaline' ? '' : profile.displayName;
+            guestInput.placeholder = currentUser ? 'Kasutaja nimi' : 'Sinu nimi';
+        }
+
         if (auth) {
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
@@ -881,8 +916,14 @@
                     loggedOutView.classList.remove('hidden');
                     loggedInView.classList.add('hidden');
                     authSection.classList.remove('hidden');
-                    postSection.classList.remove('hidden');
+                    postSection.classList.add('hidden');
+                    const guestProfile = getGuestProfile();
+                    const guestInput = document.getElementById('guestName');
+                    if (guestInput && guestProfile.displayName !== 'Külaline') {
+                        guestInput.value = guestProfile.displayName;
+                    }
                 }
+                setupGuestIdentityField();
                 loadPosts();
             });
         }
@@ -890,6 +931,20 @@
         // Sündmuse lisamine või muutmine
         postForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (!currentUser) {
+                alert('Ainult sisse logitud kasutajad saavad sündmusi lisada ja muuta.');
+                return;
+            }
+
+            const guestInput = document.getElementById('guestName');
+            const guestProfile = getGuestProfile();
+            if (!currentUser && guestInput) {
+                const nextGuestName = guestInput.value.trim();
+                if (nextGuestName) {
+                    localStorage.setItem(GUEST_NAME_KEY, nextGuestName);
+                }
+            }
 
             const postId = editingPostIdInput.value;
             const title = document.getElementById('postTitle').value.trim();
@@ -899,10 +954,10 @@
             const endTime = normalizeTimeText(document.getElementById('postEndTime').value);
             const location = document.getElementById('postLocation').value.trim();
             const text = document.getElementById('postText').value.trim();
-            const displayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Külaline';
-            const authorEmail = currentUser?.email || 'guest@local';
+            const displayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || (guestInput && guestInput.value.trim()) || guestProfile.displayName;
+            const authorEmail = currentUser?.email || guestProfile.email;
             const authorPhoto = currentUser?.photoURL || null;
-            const authorUid = currentUser?.uid || `guest-${Date.now()}`;
+            const authorUid = currentUser?.uid || guestProfile.uid;
 
             const payload = {
                 title,
@@ -974,6 +1029,11 @@
 
         function resetFormState() {
             postForm.reset();
+            const guestInput = document.getElementById('guestName');
+            if (guestInput) {
+                const storedGuestName = localStorage.getItem(GUEST_NAME_KEY);
+                guestInput.value = storedGuestName || '';
+            }
             document.getElementById('postDateDisplay').value = '';
             document.getElementById('postDate').value = '';
             editingPostIdInput.value = "";
@@ -1029,6 +1089,11 @@
         }
 
         window.deletePost = async function(postId) {
+            if (!currentUser) {
+                alert('Ainult sisse logitud kasutajad saavad sündmusi kustutada.');
+                return;
+            }
+
             if (confirm("Kas oled kindel, et soovid selle teate kustutada?")) {
                 try {
                     await deleteDoc(doc(db, "posts", postId));
@@ -1046,6 +1111,10 @@
                     alert("Sündmus eemaldati kohtalikult ja pärast ühenduse taastamist proovib rakendus Firestorega sünkroonida.");
                 }
             }
+        }
+
+        function getGuestUid() {
+            return getGuestProfile().uid;
         }
 
         function renderPosts(posts) {
@@ -1092,7 +1161,7 @@
                     ? postDate.toLocaleDateString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
                     : 'Just nüüd';
 
-                const isAuthor = currentUser && currentUser.uid === post.uid;
+                const canManagePost = Boolean(currentUser);
                 const authorInitial = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'K';
                 const authorHtml = post.authorPhoto ? `<img src="${post.authorPhoto}" alt="">` : `<span class="mini-avatar">${authorInitial}</span>`;
 
@@ -1128,7 +1197,7 @@
                 }
 
                 let actionsHtml = '';
-                if (isAuthor) {
+                if (canManagePost) {
                     const safeTitle = escapeAttr(post.title || '');
                     const safeText = escapeAttr(post.text || '');
                     const safeLoc = escapeAttr(post.location || '');
