@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infotahvel</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --error-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-area span.material-icons-round {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .logo-area h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-google {
+            background-color: #ffffff;
+            color: #374151;
+            border: 1px solid var(--border);
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-google:hover {
+            background-color: #f9fafb;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .user-avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            object-fit: cover;
+        }
+
+        main {
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .board-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .post-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .post-author img, .post-author .mini-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            background: var(--primary);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .post-content {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            white-space: pre-line;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .delete-btn:hover {
+            text-decoration: underline;
+        }
+
+        .auth-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        .auth-box h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .divider::before {
+            margin-right: .5em;
+        }
+
+        .divider::after {
+            margin-left: .5em;
+        }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .switch-auth a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .switch-auth a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span class="material-icons-round">dashboard</span>
+            <h1>Reaalajas Infotahvel</h1>
+        </div>
+        <div class="auth-container">
+            <div id="loggedOutView">
+                <button id="openAuthModalBtn" class="btn btn-primary">
+                    <span class="material-icons-round">account_circle</span> Logi sisse / Registreeru
+                </button>
+            </div>
+            <div id="loggedInView" class="hidden">
+                <div class="user-info">
+                    <div id="userAvatar" class="user-avatar-placeholder">K</div>
+                    <span id="userName">Nimi</span>
+                </div>
+                <button id="logoutBtn" class="btn btn-outline">Logi välja</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Vasak veerg: Sisse logimata vorm või postituse lisamise vorm -->
+        <aside class="sidebar">
+            
+            <!-- Sisse logimata kasutaja autentimisala -->
+            <div id="authSection">
+                <div class="auth-box">
+                    <button id="googleLoginBtn" class="btn btn-google">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.18C.43 8.12 0 9.83 0 11.6s.43 3.48 1.18 5.01l4.09-2.37z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.18 6.6l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+                        Logi sisse Google-iga
+                    </button>
+
+                    <div class="divider">või e-mailiga</div>
+
+                    <!-- Sisselogimise vorm -->
+                    <form id="emailLoginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">E-mail</label>
+                            <input type="email" id="loginEmail" class="form-control" required placeholder="nimi@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Parool</label>
+                            <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Logi sisse</button>
+                        <div id="loginError" class="error-msg"></div>
+                    </form>
+
+                    <!-- Registreerimise vorm (vaikimisi peidetud) -->
+                    <form id="emailRegisterForm" class="hidden">
+                        <div class="form-group">
+                            <label for="regName">Sinu Nimi</label>
+                            <input type="text" id="regName" class="form-control" required placeholder="Mati Tamm">
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">E-mail</label>
+                            <input type="email" id="regEmail" class="form-control" required placeholder="nimi@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Parool (vähemalt 6 märki)</label>
+                            <input type="password" id="regPassword" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Loo konto</button>
+                        <div id="regError" class="error-msg"></div>
+                    </form>
+
+                    <div class="switch-auth">
+                        <span id="switchText">Sul pole kontot?</span> <a id="switchAuthBtn">Registreeru siin</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sisse logitud kasutajale lisamisvorm -->
+            <div id="postSection" class="hidden">
+                <h2><span class="material-icons-round">add_box</span> Lisa teade</h2>
+                <form id="postForm">
+                    <div class="form-group">
+                        <label for="postTitle">Pealkiri</label>
+                        <input type="text" id="postTitle" class="form-control" required placeholder="Nt. Hooldustööd majas">
+                    </div>
+                    <div class="form-group">
+                        <label for="postCategory">Kategooria</label>
+                        <select id="postCategory" class="form-control">
+                            <option value="Teade">Teade</option>
+                            <option value="Sündmus">Sündmus</option>
+                            <option value="Hoiatus">Hoiatus</option>
+                            <option value="Muu">Muu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postText">Sisu</label>
+                        <textarea id="postText" class="form-control" required placeholder="Kirjelda sündmust või infot..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Avalda tahvlile</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Parem veerg: Infotahbli postituste voog -->
+        <section class="board-container">
+            <div class="board-header">
+                <h2>Aktiivsed teated ja sündmused</h2>
+            </div>
+            <div id="postsGrid" class="posts-grid">
+                <!-- Postitused laetakse siia dünaamiliselt -->
+                <p id="loadingText" style="color: var(--text-muted);">Laen andmeid...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK skriptid (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            updateProfile, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ==========================================
+        // SISESTA SIIA OMA FIREBASE KONFIGURATSIOON
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "SINU_API_KEY",
+            authDomain: "SINU_AUTH_DOMAIN",
+            projectId: "SINU_PROJECT_ID",
+            storageBucket: "SINU_STORAGE_BUCKET",
+            messagingSenderId: "SINU_MESSAGING_SENDER_ID",
+            appId: "SINU_APP_ID"
+        };
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase konfigureerimata:", e);
+        }
+
+        const googleProvider = new GoogleAuthProvider();
+
+        // DOM Elementide viited
+        const loggedOutView = document.getElementById('loggedOutView');
+        const loggedInView = document.getElementById('loggedInView');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const authSection = document.getElementById('authSection');
+        const postSection = document.getElementById('postSection');
+        const postForm = document.getElementById('postForm');
+        const postsGrid = document.getElementById('postsGrid');
+        const loadingText = document.getElementById('loadingText');
+
+        // Autentimisvormide elemendid
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const emailLoginForm = document.getElementById('emailLoginForm');
+        const emailRegisterForm = document.getElementById('emailRegisterForm');
+        const switchAuthBtn = document.getElementById('switchAuthBtn');
+        const switchText = document.getElementById('switchText');
+        const loginError = document.getElementById('loginError');
+        const regError = document.getElementById('regError');
+
+        let currentUser = null;
+        let isRegistering = false;
+
+        // Sisselogimise / Registreerimise vormi vahetamine
+        switchAuthBtn.addEventListener('click', () => {
+            isRegistering = !isRegistering;
+            if (isRegistering) {
+                emailLoginForm.classList.add('hidden');
+                emailRegisterForm.classList.remove('hidden');
+                switchText.textContent = "Sul on juba konto?";
+                switchAuthBtn.textContent = "Logi sisse";
+            } else {
+                emailRegisterForm.classList.add('hidden');
+                emailLoginForm.classList.remove('hidden');
+                switchText.textContent = "Sul pole kontot?";
+                switchAuthBtn.textContent = "Registreeru siin";
+            }
+            loginError.textContent = "";
+            regError.textContent = "";
+        });
+
+        // Google sisselogimine
+        googleLoginBtn.addEventListener('click', async () => {
+            if (!auth) {
+                alert("Palun seadista esmalt Firebase konfiguratsioon koodis!");
+                return;
+            }
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.error("Google sisselogimise viga:", error);
+            }
+        });
+
+        // E-maili ja parooliga sisselogimine
+        emailLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.textContent = "";
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Sisselogimise viga:", error);
+                loginError.textContent = "Vale e-mail või parool.";
+            }
+        });
+
+        // Uue konto loomine (E-mail + Parool + Nimi)
+        emailRegisterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            regError.textContent = "";
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                // Loome kasutaja
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                // Salvestame kasutaja profiilile nime
+                await updateProfile(userCredential.user, {
+                    displayName: name
+                });
+                // Kuna updateProfile ei uuenda koheselt kohalikku objektiseisu, teeme lehele väikse refresh-i või laseme auth leneril reageerida
+                window.location.reload();
+            } catch (error) {
+                console.error("Registreerimise viga:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    regError.textContent = "See e-mail on juba kasutusel.";
+                } else if (error.code === 'auth/weak-password') {
+                    regError.textContent = "Parool peab olema vähemalt 6 märki.";
+                } else {
+                    regError.textContent = "Registreerimine ebaõnnestus. Proovi uuesti.";
+                }
+            }
+        });
+
+        // Väljalogimine
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Väljalogimise viga:", error);
+            }
+        });
+
+        // Autentimise oleku jälgija
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    loggedOutView.classList.add('hidden');
+                    loggedInView.classList.remove('hidden');
+                    authSection.classList.add('hidden');
+                    postSection.classList.remove('hidden');
+
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    userName.textContent = displayName;
+                    
+                    if (user.photoURL) {
+                        userAvatar.outerHTML = `<img id="userAvatar" src="${user.photoURL}" alt="Kasutaja" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">`;
+                    } else {
+                        userAvatar.textContent = displayName.charAt(0).toUpperCase();
+                    }
+                } else {
+                    loggedOutView.classList.remove('hidden');
+                    loggedInView.classList.add('hidden');
+                    authSection.classList.remove('hidden');
+                    postSection.classList.add('hidden');
+                }
+                loadPosts();
+            });
+        } else {
+            loadingText.textContent = "Palun lisa koodi oma Firebase'i seaded, et andmed kuvada.";
+        }
+
+        // Postituse lisamine andmebaasi
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const title = document.getElementById('postTitle').value;
+            const category = document.getElementById('postCategory').value;
+            const text = document.getElementById('postText').value;
+            const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    title,
+                    category,
+                    text,
+                    authorName: displayName,
+                    authorEmail: currentUser.email,
+                    authorPhoto: currentUser.photoURL || null,
+                    uid: currentUser.uid,
+                    createdAt: new Date()
+                });
+                postForm.reset();
+            } catch (error) {
+                console.error("Postituse lisamine ebaõnnestus:", error);
+                alert("Viga postituse salvestamisel.");
+            }
+        });
+
+        // Postituste laadimine ja reaalajas uuendamine
+        function loadPosts() {
+            if (!db) return;
+
+            const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                postsGrid.innerHTML = "";
+                if (snapshot.empty) {
+                    postsGrid.innerHTML = `<p style="color: var(--text-muted);">Tahvlil ei ole veel ühtegi teadet.</p>`;
+                    return;
+                }
+
+                snapshot.forEach((docSnap) => {
+                    const post = docSnap.data();
+                    const postId = docSnap.id;
+                    const dateStr = post.createdAt?.toDate ? post.createdAt.toDate().toLocaleDateString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Just nüüd';
+
+                    const canDelete = currentUser && currentUser.uid === post.uid;
+                    const authorInitial = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'K';
+
+                    let authorHtml = '';
+                    if (post.authorPhoto) {
+                        authorHtml = `<img src="${post.authorPhoto}" alt="">`;
+                    } else {
+                        authorHtml = `<span class="mini-avatar">${authorInitial}</span>`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    card.innerHTML = `
+                        <div>
+                            <div class="post-meta">
+                                <span class="post-author">
+                                    ${authorHtml}
+                                    ${escapeHTML(post.authorName || 'Tundmatu')}
+                                </span>
+                                <span style="background: #e2e8f0; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 500;">${escapeHTML(post.category)}</span>
+                            </div>
+                            <h3 class="post-title">${escapeHTML(post.title)}</h3>
+                            <p class="post-content">${escapeHTML(post.text)}</p>
+                        </div>
+                        <div class="post-footer">
+                            <span>${dateStr}</span>
+                            ${canDelete ? `<button class="delete-btn" onclick="deletePost('${postId}')"><span class="material-icons-round" style="font-size: 1rem;">delete</span> Kustuta</button>` : ''}
+                        </div>
+                    `;
+                    postsGrid.appendChild(card);
+                });
+            }, (error) => {
+                console.error("Andmete laadimine ebaõnnestus:", error);
+                loadingText.textContent = "Andmete laadimine ebaõnnestus. Kontrolli Firebase seadeid.";
+            });
+        }
+
+        // Globaalne funktsioon postituse kustutamiseks
+        window.deletePost = async function(postId) {
+            if (confirm("Kas oled kindel, et soovid selle teate kustutada?")) {
+                try {
+                    await deleteDoc(doc(db, "posts", postId));
+                } catch (error) {
+                    console.error("Kustutamine ebaõnnestus:", error);
+                    alert("Sul pole õigust seda postitust kustutada.");
+                }
+            }
+        }
+
+        // XSS kaitse abifunktsioon
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
