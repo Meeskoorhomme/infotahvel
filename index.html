@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homme infotahvel</title>
+    <!-- Google Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-area span.material-icons-round {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .logo-area h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .auth-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background-color: #f1f5f9;
+        }
+
+        .btn-google {
+            background-color: #ffffff;
+            color: #374151;
+            border: 1px solid var(--border);
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .btn-google:hover {
+            background-color: #f9fafb;
+        }
+
+        .btn-cal {
+            font-size: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .btn-cal:hover {
+            background-color: #e2e8f0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .user-avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            object-fit: cover;
+        }
+
+        main {
+            max-width: 1400px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            height: fit-content;
+        }
+
+        /* Post-it Sticker Styling */
+        .post-it {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-bottom: 3px solid #86efac;
+            padding: 1.25rem;
+            border-radius: 4px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.08);
+            position: relative;
+            transform: rotate(-1deg);
+            transition: transform 0.2s;
+        }
+
+        .post-it:hover {
+            transform: rotate(0deg) scale(1.01);
+        }
+
+        .post-it-pin {
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .post-it-title {
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .post-it-body {
+            font-size: 0.85rem;
+            color: #14532d;
+            line-height: 1.4;
+        }
+
+        .sidebar-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text-muted);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .board-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .post-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 0.9rem 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .post-author img, .post-author .mini-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            background: var(--primary);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .post-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .post-card.collapsed .expanded-content {
+            display: none !important;
+        }
+
+        .post-card:not(.collapsed) .collapsed-summary {
+            display: none !important;
+        }
+
+        .collapsed-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .collapsed-summary .post-title {
+            margin-bottom: 0;
+        }
+
+        .post-content {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            white-space: pre-line;
+        }
+
+        .post-details {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .post-details div {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+        }
+
+        .post-details span.material-icons-round {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .calendar-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .category-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-proov { background: #2563eb; }
+        .category-kontsert { background: #dc2626; }
+        .category-laager { background: #16a34a; }
+        .category-koosolek { background: #7c3aed; }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .edit-btn {
+            color: var(--primary);
+        }
+        .edit-btn:hover {
+            text-decoration: underline;
+        }
+
+        .delete-btn {
+            color: var(--error-color);
+        }
+        .delete-btn:hover {
+            text-decoration: underline;
+        }
+
+        .auth-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: var(--radius);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .divider::before {
+            margin-right: .5em;
+        }
+
+        .divider::after {
+            margin-left: .5em;
+        }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .switch-auth a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .switch-auth a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span class="material-icons-round">dashboard</span>
+            <h1>Homme infotahvel</h1>
+        </div>
+        <div class="auth-container">
+            <div id="loggedOutView">
+                <button id="openAuthModalBtn" class="btn btn-primary">
+                    <span class="material-icons-round">account_circle</span> Logi sisse / Registreeru
+                </button>
+            </div>
+            <div id="loggedInView" class="hidden">
+                <div class="user-info">
+                    <div id="userAvatar" class="user-avatar-placeholder">K</div>
+                    <span id="userName">Nimi</span>
+                </div>
+                <button id="logoutBtn" class="btn btn-outline">Logi välja</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Vasak veerg -->
+        <aside class="sidebar">
+            
+            <!-- Post-it sticker järgmise sündmusega -->
+            <div id="nextEventSticker" class="post-it">
+                <div class="post-it-pin"></div>
+                <div class="post-it-title">
+                    <span class="material-icons-round" style="font-size: 1.2rem;">event_upcoming</span> Järgmine sündmus
+                </div>
+                <div id="nextEventBody" class="post-it-body">
+                    Laen järgmist sündmust...
+                </div>
+            </div>
+
+            <!-- Sisse logimata kasutaja autentimisala -->
+            <div id="authSection" class="auth-box">
+                <button id="googleLoginBtn" class="btn btn-google">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.23 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.18C.43 8.12 0 9.83 0 11.6s.43 3.48 1.18 5.01l4.09-2.37z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.23 0 3.15 2.68 1.18 6.6l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+                    Logi sisse Google-iga
+                </button>
+
+                <div class="divider">või e-mailiga</div>
+
+                <form id="emailLoginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail</label>
+                        <input type="email" id="loginEmail" class="form-control" required placeholder="nimi@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Parool</label>
+                        <input type="password" id="loginPassword" class="form-control" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Logi sisse</button>
+                    <div id="loginError" class="error-msg"></div>
+                </form>
+
+                <form id="emailRegisterForm" class="hidden">
+                    <div class="form-group">
+                        <label for="regName">Sinu Nimi</label>
+                        <input type="text" id="regName" class="form-control" required placeholder="Mati Tamm">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">E-mail</label>
+                        <input type="email" id="regEmail" class="form-control" required placeholder="nimi@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Parool (vähemalt 6 märki)</label>
+                        <input type="password" id="regPassword" class="form-control" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Loo konto</button>
+                    <div id="regError" class="error-msg"></div>
+                </form>
+
+                <div class="switch-auth">
+                    <span id="switchText">Sul pole kontot?</span> <a id="switchAuthBtn">Registreeru siin</a>
+                </div>
+            </div>
+
+            <!-- Sisse logitud kasutajale lisamis- / muutmisvorm (Vaikimisi peidetud) -->
+            <div id="postSection" class="sidebar-card hidden">
+                <h2 id="formHeading"><span class="material-icons-round">add_box</span> Lisa teade või sündmus</h2>
+                <form id="postForm">
+                    <input type="hidden" id="editingPostId" value="">
+                    <div class="form-group">
+                        <label for="guestName">Nimi (kui oled külaline)</label>
+                        <input type="text" id="guestName" class="form-control" placeholder="Sinu nimi" maxlength="60">
+                    </div>
+                    <div class="form-group">
+                        <label for="postTitle">Pealkiri</label>
+                        <input type="text" id="postTitle" class="form-control" required placeholder="Nt. Kevadine üldkoosolek">
+                    </div>
+                    <div class="form-group">
+                        <label for="postCategory">Kategooria</label>
+                        <select id="postCategory" class="form-control">
+                            <option value="Proov" selected>Proov</option>
+                            <option value="Kontsert">Kontsert</option>
+                            <option value="Laager">Laager</option>
+                            <option value="Koosolek">Koosolek</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postDate">Sündmuse kuupäev</label>
+                        <div style="position: relative;">
+                            <input type="text" id="postDateDisplay" class="form-control" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" aria-label="Sündmuse kuupäev">
+                            <input type="date" id="postDate" class="form-control" aria-label="Sündmuse kuupäev" style="position: absolute; inset: 0; opacity: 0; pointer-events: none;">
+                            <button type="button" id="openDatePickerBtn" class="btn btn-cal" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 0.2rem 0.5rem;">📅</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postStartTime">Algusaeg</label>
+                            <input type="text" id="postStartTime" class="form-control" placeholder="HH:MM" inputmode="numeric" maxlength="5" pattern="^(?:[01]\d|2[0-3]):[0-5]\d$" value="09:00">
+                        </div>
+                        <div class="form-group">
+                            <label for="postEndTime">Lõpuaeg</label>
+                            <input type="text" id="postEndTime" class="form-control" placeholder="HH:MM" inputmode="numeric" maxlength="5" pattern="^(?:[01]\d|2[0-3]):[0-5]\d$" value="17:00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="postLocation">Sündmuse asukoht</label>
+                        <input type="text" id="postLocation" class="form-control" placeholder="Nt. Peasaal / Zoom">
+                    </div>
+                    <div class="form-group">
+                        <label for="postText">Sisu</label>
+                        <textarea id="postText" class="form-control" required placeholder="Kirjelda sündmust või infot..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="submit" id="submitBtn" class="btn btn-primary" style="flex: 1;">Avalda tahvlile</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-outline hidden">Katkesta</button>
+                    </div>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Parem veerg: Infotahvli postituste voog -->
+        <section class="board-container">
+            <div class="board-header">
+                <h2>Aktiivsed teated ja sündmused</h2>
+            </div>
+            <div id="postsGrid" class="posts-grid">
+                <p id="loadingText" style="color: var(--text-muted);">Laen andmeid...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            updateProfile, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // ==========================================
+        // FIREBASE KONFIGURATSIOON
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkzcwHXvkDAL3GWnRi74uYmzaQHZfb2vU",
+            authDomain: "meeskoor-homme-infotahvel.firebaseapp.com",
+            projectId: "meeskoor-homme-infotahvel",
+            storageBucket: "meeskoor-homme-infotahvel.firebasestorage.app",
+            messagingSenderId: "261616485644",
+            appId: "1:261616485644:web:4ef153ec43a186ae0cf529",
+            measurementId: "G-Q890MK2D3W"
+        };
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase konfigureerimismõõdikute viga:", e);
+        }
+
+        const googleProvider = new GoogleAuthProvider();
+        const LOCAL_STORAGE_KEY = 'meeskoor-posts-v1';
+        const GUEST_NAME_KEY = 'meeskoor-guest-name';
+        const GUEST_UID_KEY = 'meeskoor-guest-uid';
+
+        function getGuestProfile() {
+            let guestUid = localStorage.getItem(GUEST_UID_KEY);
+            if (!guestUid) {
+                guestUid = `guest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+                localStorage.setItem(GUEST_UID_KEY, guestUid);
+            }
+
+            const guestName = localStorage.getItem(GUEST_NAME_KEY) || 'Külaline';
+            return {
+                displayName: guestName,
+                email: 'guest@local',
+                uid: guestUid
+            };
+        }
+
+        function readLocalPosts() {
+            try {
+                const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                const list = raw ? JSON.parse(raw) : [];
+                return Array.isArray(list) ? list : [];
+            } catch (error) {
+                console.warn('Local storage read failed:', error);
+                return [];
+            }
+        }
+
+        function writeLocalPosts(posts) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(posts));
+            } catch (error) {
+                console.warn('Local storage write failed:', error);
+            }
+        }
+
+        function normalizeLocalPost(post, fallbackId) {
+            const next = { ...post };
+            if (!next.id) next.id = fallbackId || `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            if (!next.createdAt) next.createdAt = new Date().toISOString();
+            if (next.createdAt && typeof next.createdAt.toDate === 'function') {
+                next.createdAt = next.createdAt.toDate().toISOString();
+            }
+            if (typeof next.createdAt === 'string') {
+                next.createdAt = new Date(next.createdAt).toISOString();
+            }
+            return next;
+        }
+
+        function mergePosts(localPosts, remotePosts) {
+            const merged = new Map();
+            [...(Array.isArray(localPosts) ? localPosts : []), ...(Array.isArray(remotePosts) ? remotePosts : [])]
+                .forEach((post) => {
+                    const normalized = normalizeLocalPost(post, post && post.id ? post.id : `local-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+                    merged.set(String(normalized.id), normalized);
+                });
+
+            return Array.from(merged.values()).sort((a, b) => {
+                const aTime = new Date(a.createdAt || 0).getTime();
+                const bTime = new Date(b.createdAt || 0).getTime();
+                return bTime - aTime;
+            });
+        }
+
+        // DOM Elementide viited
+        const loggedOutView = document.getElementById('loggedOutView');
+        const loggedInView = document.getElementById('loggedInView');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const authSection = document.getElementById('authSection');
+        const postSection = document.getElementById('postSection');
+        const postForm = document.getElementById('postForm');
+        const postsGrid = document.getElementById('postsGrid');
+        const loadingText = document.getElementById('loadingText');
+        const nextEventBody = document.getElementById('nextEventBody');
+
+        const formHeading = document.getElementById('formHeading');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const editingPostIdInput = document.getElementById('editingPostId');
+
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const emailLoginForm = document.getElementById('emailLoginForm');
+        const emailRegisterForm = document.getElementById('emailRegisterForm');
+        const switchAuthBtn = document.getElementById('switchAuthBtn');
+        const switchText = document.getElementById('switchText');
+        const loginError = document.getElementById('loginError');
+        const regError = document.getElementById('regError');
+
+        let currentUser = null;
+        let isRegistering = false;
+
+        // Vormi vahetamine (Sisselogimine / Registreerimine)
+        switchAuthBtn.addEventListener('click', () => {
+            isRegistering = !isRegistering;
+            if (isRegistering) {
+                emailLoginForm.classList.add('hidden');
+                emailRegisterForm.classList.remove('hidden');
+                switchText.textContent = "Sul on juba konto?";
+                switchAuthBtn.textContent = "Logi sisse";
+            } else {
+                emailRegisterForm.classList.add('hidden');
+                emailLoginForm.classList.remove('hidden');
+                switchText.textContent = "Sul pole kontot?";
+                switchAuthBtn.textContent = "Registreeru siin";
+            }
+            loginError.textContent = "";
+            regError.textContent = "";
+        });
+
+        googleLoginBtn.addEventListener('click', async () => {
+            if (!auth) {
+                alert("Firebase pole initsialiseeritud!");
+                return;
+            }
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.error("Google sisselogimise viga:", error);
+            }
+        });
+
+        emailLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loginError.textContent = "";
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = "Vale e-mail või parool.";
+            }
+        });
+
+        emailRegisterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            regError.textContent = "";
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                window.location.reload();
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') regError.textContent = "See e-mail on juba kasutusel.";
+                else if (error.code === 'auth/weak-password') regError.textContent = "Parool peab olema vähemalt 6 märki.";
+                else regError.textContent = "Registreerimine ebaõnnestus.";
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        function setupGuestIdentityField() {
+            const guestInput = document.getElementById('guestName');
+            if (!guestInput) return;
+
+            const guestFieldWrapper = guestInput.closest('.form-group');
+            if (guestFieldWrapper) {
+                guestFieldWrapper.classList.toggle('hidden', Boolean(currentUser));
+            }
+
+            const profile = getGuestProfile();
+            guestInput.value = profile.displayName === 'Külaline' ? '' : profile.displayName;
+            guestInput.placeholder = currentUser ? 'Kasutaja nimi' : 'Sinu nimi';
+        }
+
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    loggedOutView.classList.add('hidden');
+                    loggedInView.classList.remove('hidden');
+                    authSection.classList.add('hidden');
+                    postSection.classList.remove('hidden');
+
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    userName.textContent = displayName;
+                    
+                    if (user.photoURL) {
+                        userAvatar.outerHTML = `<img id="userAvatar" src="${user.photoURL}" alt="Kasutaja" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">`;
+                    } else {
+                        userAvatar.textContent = displayName.charAt(0).toUpperCase();
+                    }
+                } else {
+                    loggedOutView.classList.remove('hidden');
+                    loggedInView.classList.add('hidden');
+                    authSection.classList.remove('hidden');
+                    postSection.classList.add('hidden');
+                    const guestProfile = getGuestProfile();
+                    const guestInput = document.getElementById('guestName');
+                    if (guestInput && guestProfile.displayName !== 'Külaline') {
+                        guestInput.value = guestProfile.displayName;
+                    }
+                }
+                setupGuestIdentityField();
+                loadPosts();
+            });
+        }
+
+        // Sündmuse lisamine või muutmine
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('Ainult sisse logitud kasutajad saavad sündmusi lisada ja muuta.');
+                return;
+            }
+
+            const guestInput = document.getElementById('guestName');
+            const guestProfile = getGuestProfile();
+            if (!currentUser && guestInput) {
+                const nextGuestName = guestInput.value.trim();
+                if (nextGuestName) {
+                    localStorage.setItem(GUEST_NAME_KEY, nextGuestName);
+                }
+            }
+
+            const postId = editingPostIdInput.value;
+            const title = document.getElementById('postTitle').value.trim();
+            const category = document.getElementById('postCategory').value;
+            const date = document.getElementById('postDate').value;
+            const startTime = normalizeTimeText(document.getElementById('postStartTime').value);
+            const endTime = normalizeTimeText(document.getElementById('postEndTime').value);
+            const location = document.getElementById('postLocation').value.trim();
+            const text = document.getElementById('postText').value.trim();
+            const displayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || (guestInput && guestInput.value.trim()) || guestProfile.displayName;
+            const authorEmail = currentUser?.email || guestProfile.email;
+            const authorPhoto = currentUser?.photoURL || null;
+            const authorUid = currentUser?.uid || guestProfile.uid;
+
+            const payload = {
+                title,
+                category,
+                date: date || null,
+                startTime: startTime || null,
+                endTime: endTime || null,
+                location: location || null,
+                text,
+                authorName: displayName,
+                authorEmail,
+                authorPhoto,
+                uid: authorUid,
+                createdAt: new Date()
+            };
+
+            const localPayload = normalizeLocalPost({ ...payload, id: postId || `local-${Date.now()}` }, postId || `local-${Date.now()}`);
+
+            try {
+                if (postId) {
+                    await updateDoc(doc(db, "posts", postId), {
+                        title,
+                        category,
+                        date: date || null,
+                        startTime: startTime || null,
+                        endTime: endTime || null,
+                        location: location || null,
+                        text,
+                        updatedAt: new Date()
+                    });
+                    const existing = readLocalPosts().map(item => item.id === postId ? { ...item, ...localPayload } : item);
+                    writeLocalPosts(existing.length ? existing : [localPayload]);
+                    resetFormState();
+                } else {
+                    const createdDoc = await addDoc(collection(db, "posts"), {
+                        title,
+                        category,
+                        date: date || null,
+                        startTime: startTime || null,
+                        endTime: endTime || null,
+                        location: location || null,
+                        text,
+                        authorName: displayName,
+                        authorEmail,
+                        authorPhoto,
+                        uid: authorUid,
+                        createdAt: new Date()
+                    });
+                    const saved = { ...localPayload, id: createdDoc.id };
+                    const list = [saved, ...readLocalPosts().filter(item => item.id !== saved.id)];
+                    writeLocalPosts(list);
+                    resetFormState();
+                }
+            } catch (error) {
+                console.error("Postituse salvestamine ebaõnnestus:", error);
+                const existing = readLocalPosts();
+                const nextList = postId
+                    ? existing.map(item => item.id === postId ? { ...item, ...localPayload } : item)
+                    : [localPayload, ...existing];
+                writeLocalPosts(nextList);
+                alert("Firestoren ei saanud ühendust võtta, aga sündmus salvestati kohalikult ja jääb pärast lehe uuesti laadimist alles.");
+                resetFormState();
+            }
+        });
+
+        cancelEditBtn.addEventListener('click', () => {
+            resetFormState();
+        });
+
+        function resetFormState() {
+            postForm.reset();
+            const guestInput = document.getElementById('guestName');
+            if (guestInput) {
+                const storedGuestName = localStorage.getItem(GUEST_NAME_KEY);
+                guestInput.value = storedGuestName || '';
+            }
+            document.getElementById('postDateDisplay').value = '';
+            document.getElementById('postDate').value = '';
+            editingPostIdInput.value = "";
+            formHeading.innerHTML = `<span class="material-icons-round">add_box</span> Lisa teade või sündmus`;
+            submitBtn.textContent = "Avalda tahvlile";
+            cancelEditBtn.classList.add('hidden');
+        }
+
+        document.getElementById('openDatePickerBtn').addEventListener('click', () => {
+            const hiddenDateInput = document.getElementById('postDate');
+            if (hiddenDateInput.showPicker) {
+                hiddenDateInput.showPicker();
+            } else {
+                hiddenDateInput.click();
+            }
+        });
+
+        document.getElementById('postDate').addEventListener('change', () => {
+            const iso = document.getElementById('postDate').value;
+            document.getElementById('postDateDisplay').value = iso ? formatDateForDisplay(iso) : '';
+        });
+
+        document.getElementById('postDateDisplay').addEventListener('blur', () => {
+            const formatted = normalizeDateText(document.getElementById('postDateDisplay').value);
+            document.getElementById('postDateDisplay').value = formatted;
+            document.getElementById('postDate').value = parseDateValue(formatted) || '';
+        });
+
+        document.getElementById('postStartTime').addEventListener('blur', () => {
+            document.getElementById('postStartTime').value = normalizeTimeText(document.getElementById('postStartTime').value);
+        });
+
+        document.getElementById('postEndTime').addEventListener('blur', () => {
+            document.getElementById('postEndTime').value = normalizeTimeText(document.getElementById('postEndTime').value);
+        });
+
+        // Globaalsed funktsioonid muutmiseks ja kustutamiseks
+        window.editPost = function(id, title, category, date, startTime, endTime, location, text) {
+            editingPostIdInput.value = id;
+            document.getElementById('postTitle').value = title;
+            document.getElementById('postCategory').value = category;
+            document.getElementById('postDateDisplay').value = formatDateForDisplay(date || '');
+            document.getElementById('postDate').value = date || '';
+            document.getElementById('postStartTime').value = startTime || '';
+            document.getElementById('postEndTime').value = endTime || '';
+            document.getElementById('postLocation').value = location || '';
+            document.getElementById('postText').value = text;
+
+            formHeading.innerHTML = `<span class="material-icons-round">edit</span> Muuda teadet või sündmust`;
+            submitBtn.textContent = "Salvesta muudatused";
+            cancelEditBtn.classList.remove('hidden');
+            postSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.deletePost = async function(postId) {
+            if (!currentUser) {
+                alert('Ainult sisse logitud kasutajad saavad sündmusi kustutada.');
+                return;
+            }
+
+            if (confirm("Kas oled kindel, et soovid selle teate kustutada?")) {
+                try {
+                    await deleteDoc(doc(db, "posts", postId));
+                    const remaining = readLocalPosts().filter(item => item.id !== postId);
+                    writeLocalPosts(remaining);
+                    if (editingPostIdInput.value === postId) {
+                        resetFormState();
+                    }
+                } catch (error) {
+                    const remaining = readLocalPosts().filter(item => item.id !== postId);
+                    writeLocalPosts(remaining);
+                    if (editingPostIdInput.value === postId) {
+                        resetFormState();
+                    }
+                    alert("Sündmus eemaldati kohtalikult ja pärast ühenduse taastamist proovib rakendus Firestorega sünkroonida.");
+                }
+            }
+        }
+
+        function getGuestUid() {
+            return getGuestProfile().uid;
+        }
+
+        function renderPosts(posts) {
+            const list = Array.isArray(posts) ? posts : [];
+            postsGrid.innerHTML = '';
+
+            if (!list.length) {
+                postsGrid.innerHTML = '<p style="color: var(--text-muted);">Tahvlil ei ole veel ühtegi teadet.</p>';
+                nextEventBody.innerHTML = 'Hetkel tulevasi sündmusi pole.';
+                return;
+            }
+
+            const now = new Date().toISOString().split('T')[0];
+            const upcomingEvents = list
+                .filter(event => event && event.date && event.date >= now)
+                .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+                .slice(0, 2);
+
+            if (upcomingEvents.length > 0) {
+                nextEventBody.innerHTML = upcomingEvents.map((event) => {
+                    let timeStr = '';
+                    if (event.startTime) {
+                        timeStr = ' kell ' + event.startTime;
+                        if (event.endTime) timeStr += ' – ' + event.endTime;
+                    }
+                    return `
+                        <div style="margin-bottom: 0.75rem;">
+                            <strong>${escapeHTML(event.title || 'Sündmus')}</strong><br>
+                            ${formatDateForDisplay(event.date)}${timeStr}<br>
+                            ${event.location ? '📍 ' + escapeHTML(event.location) : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                nextEventBody.innerHTML = 'Tulevasi kuupäevaga sündmusi pole.';
+            }
+
+            list.forEach((post) => {
+                const postDate = post.createdAt && typeof post.createdAt.toDate === 'function'
+                    ? post.createdAt.toDate()
+                    : new Date(post.createdAt || Date.now());
+
+                const dateStr = postDate instanceof Date && !Number.isNaN(postDate.getTime())
+                    ? postDate.toLocaleDateString('et-EE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                    : 'Just nüüd';
+
+                const canManagePost = Boolean(currentUser);
+                const authorInitial = post.authorName ? post.authorName.charAt(0).toUpperCase() : 'K';
+                const authorHtml = post.authorPhoto ? `<img src="${post.authorPhoto}" alt="">` : `<span class="mini-avatar">${authorInitial}</span>`;
+
+                let calendarBtnsHtml = '';
+                if (post.date) {
+                    const googleUrl = createGoogleCalendarUrl(post);
+                    const outlookUrl = createOutlookCalendarUrl(post);
+                    calendarBtnsHtml = `
+                        <div class="calendar-actions">
+                            <a href="${googleUrl}" target="_blank" class="btn btn-cal">
+                                <span class="material-icons-round" style="font-size: 0.9rem; color: #ea4335;">event</span> Google Kalender
+                            </a>
+                            <a href="${outlookUrl}" target="_blank" class="btn btn-cal">
+                                <span class="material-icons-round" style="font-size: 0.9rem; color: #0078d4;">event</span> Outlook
+                            </a>
+                        </div>
+                    `;
+                }
+
+                let detailsHtml = '';
+                if (post.date || post.location) {
+                    let formattedTime = '';
+                    if (post.startTime) {
+                        formattedTime = 'kl ' + post.startTime;
+                        if (post.endTime) formattedTime += ' – ' + post.endTime;
+                    }
+                    detailsHtml = `
+                        <div class="post-details">
+                            ${post.date ? `<div><span class="material-icons-round">calendar_today</span> ${formatDateForDisplay(post.date)}${formattedTime}</div>` : ''}
+                            ${post.location ? `<div><span class="material-icons-round">place</span> ${escapeHTML(post.location)}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                let actionsHtml = '';
+                if (canManagePost) {
+                    const safeTitle = escapeAttr(post.title || '');
+                    const safeText = escapeAttr(post.text || '');
+                    const safeLoc = escapeAttr(post.location || '');
+                    actionsHtml = `
+                        <div class="card-actions">
+                            <button class="action-btn edit-btn" onclick="editPost('${post.id}', '${safeTitle}', '${post.category}', '${post.date || ''}', '${post.startTime || ''}', '${post.endTime || ''}', '${safeLoc}', '${safeText}')">
+                                <span class="material-icons-round" style="font-size: 1rem;">edit</span> Muuda
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deletePost('${post.id}')">
+                                <span class="material-icons-round" style="font-size: 1rem;">delete</span> Kustuta
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const categoryClass = getCategoryClass(post.category);
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.dataset.postId = post.id;
+                card.innerHTML = `
+                    <div class="collapsed-summary">
+                        <h3 class="post-title">${escapeHTML(post.title || 'Sündmus')}</h3>
+                        <div class="post-footer">
+                            <span>${post.date ? formatDateForDisplay(post.date) : dateStr}</span>
+                            <button class="collapse-btn" type="button" onclick="togglePostCollapse('${post.id}')">Ava</button>
+                        </div>
+                    </div>
+                    <div class="expanded-content">
+                        <div class="post-meta">
+                            <span class="post-author">
+                                ${authorHtml}
+                                ${escapeHTML(post.authorName || 'Tundmatu')}
+                            </span>
+                            <span class="category-badge ${categoryClass}">${escapeHTML(post.category || 'Proov')}</span>
+                        </div>
+                        <h3 class="post-title">${escapeHTML(post.title || 'Sündmus')}</h3>
+                        ${detailsHtml}
+                        <p class="post-content">${escapeHTML(post.text || '')}</p>
+                        <div>
+                            ${calendarBtnsHtml}
+                            <div class="post-footer">
+                                <span>${dateStr}</span>
+                                <div class="card-actions">
+                                    ${actionsHtml || ''}
+                                    <button class="collapse-btn" type="button" onclick="togglePostCollapse('${post.id}')">Peida</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                postsGrid.appendChild(card);
+            });
+        }
+
+        function loadPosts() {
+            const localPosts = readLocalPosts();
+            renderPosts(localPosts);
+
+            if (!db) return;
+
+            const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const posts = [];
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    posts.push({ id: docSnap.id, ...data });
+                });
+                const mergedPosts = mergePosts(localPosts, posts);
+                writeLocalPosts(mergedPosts);
+                renderPosts(mergedPosts);
+            }, (error) => {
+                console.warn("Firestore listener failed, showing local cache:", error);
+                renderPosts(readLocalPosts());
+            });
+        }
+
+        function createGoogleCalendarUrl(post) {
+            const title = encodeURIComponent(post.title);
+            const details = encodeURIComponent(post.text);
+            const location = encodeURIComponent(post.location || '');
+            
+            let datesParam = '';
+            if (post.date) {
+                const cleanDate = post.date.replace(/-/g, '');
+                if (post.startTime) {
+                    const cleanStart = post.startTime.replace(/:/g, '') + '00';
+                    const cleanEnd = post.endTime ? (post.endTime.replace(/:/g, '') + '00') : (String(Number(post.startTime.split(':')[0]) + 1).padStart(2, '0') + post.startTime.split(':')[1] + '00');
+                    datesParam = `${cleanDate}T${cleanStart}/${cleanDate}T${cleanEnd}`;
+                } else {
+                    datesParam = `${cleanDate}/${cleanDate}`;
+                }
+            }
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${datesParam}`;
+        }
+
+        function createOutlookCalendarUrl(post) {
+            const title = encodeURIComponent(post.title);
+            const body = encodeURIComponent(post.text);
+            const location = encodeURIComponent(post.location || '');
+            
+            let startdt = post.date || '';
+            let enddt = post.date || '';
+            if (post.startTime) {
+                startdt += `T${post.startTime}:00`;
+                enddt += `T${post.endTime || post.startTime}:00`;
+            } else {
+                startdt += `T09:00:00`;
+                enddt += `T10:00:00`;
+            }
+            return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&body=${body}&location=${location}&startdt=${startdt}&enddt=${enddt}`;
+        }
+
+        function formatTime24h(timeText) {
+            if (!timeText) return '';
+            const [hours, minutes] = String(timeText).split(':');
+            if (hours === undefined || minutes === undefined) return timeText;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        function normalizeTimeText(timeText) {
+            if (!timeText) return '';
+            const cleaned = String(timeText).trim();
+            if (!/^\d{1,2}:?\d{0,2}$/.test(cleaned)) return '';
+
+            const digits = cleaned.replace(':', '');
+            if (digits.length < 3) return cleaned;
+
+            const hour = Number(digits.slice(0, 2));
+            const minute = Number(digits.slice(2, 4) || '00');
+
+            if (hour > 23 || minute > 59) return '';
+            return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        }
+
+        function normalizeDateText(dateText) {
+            if (!dateText) return '';
+            const cleaned = String(dateText).trim();
+            const iso = parseDateValue(cleaned);
+            if (iso) {
+                return formatDateForDisplay(iso);
+            }
+            return cleaned;
+        }
+
+        function parseDateValue(dateText) {
+            if (!dateText) return null;
+            const value = String(dateText).trim();
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                return value;
+            }
+
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                const [day, month, year] = value.split('/');
+                if (Number(day) > 31 || Number(month) > 12) return null;
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+
+            return null;
+        }
+
+        function formatDateForDisplay(dateText) {
+            if (!dateText) return '';
+            const iso = parseDateValue(dateText);
+            if (!iso) return dateText;
+
+            const [year, month, day] = iso.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        window.togglePostCollapse = function(postId) {
+            const card = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+            if (!card) return;
+
+            const isCollapsed = card.classList.toggle('collapsed');
+            const buttons = card.querySelectorAll('.collapse-btn');
+            buttons.forEach((button) => {
+                button.textContent = isCollapsed ? 'Ava' : 'Peida';
+            });
+        }
+
+        function getCategoryClass(category) {
+            const value = String(category || '').toLowerCase();
+            if (value === 'kontsert') return 'category-kontsert';
+            if (value === 'laager') return 'category-laager';
+            if (value === 'koosolek') return 'category-koosolek';
+            return 'category-proov';
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function escapeAttr(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
