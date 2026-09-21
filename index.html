@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infotahvel</title>
+    <title>Homme infotahvel</title>
     <!-- Google Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -180,9 +180,9 @@
 
         /* Post-it Sticker Styling */
         .post-it {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-            border: 1px solid #fde68a;
-            border-bottom: 3px solid #fcd34d;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-bottom: 3px solid #86efac;
             padding: 1.25rem;
             border-radius: 4px;
             box-shadow: 3px 3px 10px rgba(0,0,0,0.08);
@@ -211,7 +211,7 @@
             font-family: 'Caveat', cursive;
             font-size: 1.5rem;
             font-weight: 700;
-            color: #b45309;
+            color: #166534;
             margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
@@ -220,7 +220,7 @@
 
         .post-it-body {
             font-size: 0.85rem;
-            color: #78350f;
+            color: #14532d;
             line-height: 1.4;
         }
 
@@ -281,31 +281,32 @@
         .board-container {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1rem;
         }
 
         .board-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 0.75rem;
         }
 
         .board-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 700;
         }
 
         .posts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
         }
 
         .post-card {
             background: var(--card-bg);
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            padding: 1.25rem;
+            padding: 0.9rem 1rem;
             box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
@@ -351,6 +352,24 @@
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: var(--text-main);
+        }
+
+        .post-card.collapsed .expanded-content {
+            display: none !important;
+        }
+
+        .post-card:not(.collapsed) .collapsed-summary {
+            display: none !important;
+        }
+
+        .collapsed-summary {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .collapsed-summary .post-title {
+            margin-bottom: 0;
         }
 
         .post-content {
@@ -406,6 +425,33 @@
             display: flex;
             gap: 0.75rem;
         }
+
+        .collapse-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .category-badge {
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-proov { background: #2563eb; }
+        .category-kontsert { background: #dc2626; }
+        .category-laager { background: #16a34a; }
+        .category-koosolek { background: #7c3aed; }
 
         .action-btn {
             background: none;
@@ -496,7 +542,7 @@
     <header>
         <div class="logo-area">
             <span class="material-icons-round">dashboard</span>
-            <h1>Reaalajas Infotahvel</h1>
+            <h1>Homme infotahvel</h1>
         </div>
         <div class="auth-container">
             <div id="loggedOutView">
@@ -573,7 +619,7 @@
                 </div>
             </div>
 
-            <!-- Sisse logitud kasutajale lisamis- / muutmisvorm -->
+            <!-- Sisse logitud kasutajale lisamis- / muutmisvorm (Vaikimisi peidetud) -->
             <div id="postSection" class="sidebar-card hidden">
                 <h2 id="formHeading"><span class="material-icons-round">add_box</span> Lisa teade või sündmus</h2>
                 <form id="postForm">
@@ -585,20 +631,28 @@
                     <div class="form-group">
                         <label for="postCategory">Kategooria</label>
                         <select id="postCategory" class="form-control">
-                            <option value="Sündmus">Sündmus</option>
-                            <option value="Teade">Teade</option>
-                            <option value="Hoiatus">Hoiatus</option>
-                            <option value="Muu">Muu</option>
+                            <option value="Proov" selected>Proov</option>
+                            <option value="Kontsert">Kontsert</option>
+                            <option value="Laager">Laager</option>
+                            <option value="Koosolek">Koosolek</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postDate">Sündmuse kuupäev</label>
+                        <div style="position: relative;">
+                            <input type="text" id="postDateDisplay" class="form-control" placeholder="dd/mm/yyyy" inputmode="numeric" autocomplete="off" aria-label="Sündmuse kuupäev">
+                            <input type="date" id="postDate" class="form-control" aria-label="Sündmuse kuupäev" style="position: absolute; inset: 0; opacity: 0; pointer-events: none;">
+                            <button type="button" id="openDatePickerBtn" class="btn btn-cal" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 0.2rem 0.5rem;">📅</button>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="postDate">Sündmuse kuupäev</label>
-                            <input type="date" id="postDate" class="form-control">
+                            <label for="postStartTime">Algusaeg</label>
+                            <input type="text" id="postStartTime" class="form-control" placeholder="HH:MM" inputmode="numeric" maxlength="5" pattern="^(?:[01]\d|2[0-3]):[0-5]\d$" value="09:00">
                         </div>
                         <div class="form-group">
-                            <label for="postTime">Sündmuse kellaaeg</label>
-                            <input type="time" id="postTime" class="form-control">
+                            <label for="postEndTime">Lõpuaeg</label>
+                            <input type="text" id="postEndTime" class="form-control" placeholder="HH:MM" inputmode="numeric" maxlength="5" pattern="^(?:[01]\d|2[0-3]):[0-5]\d$" value="17:00">
                         </div>
                     </div>
                     <div class="form-group">
@@ -644,16 +698,16 @@
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // ==========================================
-        // SISESTA SIIA OMA FIREBASE KONFIGURATSIOON
+        // FIREBASE KONFIGURATSIOON
         // ==========================================
         const firebaseConfig = {
-           apiKey: "AIzaSyBkzcwHXvkDAL3GWnRi74uYmzaQHZfb2vU",
-  authDomain: "meeskoor-homme-infotahvel.firebaseapp.com",
-  projectId: "meeskoor-homme-infotahvel",
-  storageBucket: "meeskoor-homme-infotahvel.firebasestorage.app",
-  messagingSenderId: "261616485644",
-  appId: "1:261616485644:web:4ef153ec43a186ae0cf529",
-  measurementId: "G-Q890MK2D3W"
+            apiKey: "AIzaSyBkzcwHXvkDAL3GWnRi74uYmzaQHZfb2vU",
+            authDomain: "meeskoor-homme-infotahvel.firebaseapp.com",
+            projectId: "meeskoor-homme-infotahvel",
+            storageBucket: "meeskoor-homme-infotahvel.firebasestorage.app",
+            messagingSenderId: "261616485644",
+            appId: "1:261616485644:web:4ef153ec43a186ae0cf529",
+            measurementId: "G-Q890MK2D3W"
         };
 
         let app, auth, db;
@@ -662,7 +716,7 @@
             auth = getAuth(app);
             db = getFirestore(app);
         } catch (e) {
-            console.error("Firebase konfigureerimata:", e);
+            console.error("Firebase konfigureerimismõõdikute viga:", e);
         }
 
         const googleProvider = new GoogleAuthProvider();
@@ -715,7 +769,7 @@
 
         googleLoginBtn.addEventListener('click', async () => {
             if (!auth) {
-                alert("Palun seadista esmalt Firebase konfiguratsioon koodis!");
+                alert("Firebase pole initsialiseeritud!");
                 return;
             }
             try {
@@ -765,7 +819,7 @@
                     loggedOutView.classList.add('hidden');
                     loggedInView.classList.remove('hidden');
                     authSection.classList.add('hidden');
-                    postSection.classList.remove('hidden');
+                    postSection.classList.remove('hidden'); // Näita lisamisvormi sisselogituna
 
                     const displayName = user.displayName || user.email.split('@')[0];
                     userName.textContent = displayName;
@@ -779,7 +833,7 @@
                     loggedOutView.classList.remove('hidden');
                     loggedInView.classList.add('hidden');
                     authSection.classList.remove('hidden');
-                    postSection.classList.add('hidden');
+                    postSection.classList.add('hidden'); // Peida lisamisvorm sisselogimata
                 }
                 loadPosts();
             });
@@ -794,7 +848,8 @@
             const title = document.getElementById('postTitle').value;
             const category = document.getElementById('postCategory').value;
             const date = document.getElementById('postDate').value;
-            const time = document.getElementById('postTime').value;
+            const startTime = document.getElementById('postStartTime').value;
+            const endTime = document.getElementById('postEndTime').value;
             const location = document.getElementById('postLocation').value;
             const text = document.getElementById('postText').value;
 
@@ -805,7 +860,8 @@
                         title,
                         category,
                         date: date || null,
-                        time: time || null,
+                        startTime: startTime || null,
+                        endTime: endTime || null,
                         location: location || null,
                         text
                     });
@@ -817,7 +873,8 @@
                         title,
                         category,
                         date: date || null,
-                        time: time || null,
+                        startTime: startTime || null,
+                        endTime: endTime || null,
                         location: location || null,
                         text,
                         authorName: displayName,
@@ -840,19 +897,51 @@
 
         function resetFormState() {
             postForm.reset();
+            document.getElementById('postDateDisplay').value = '';
+            document.getElementById('postDate').value = '';
             editingPostIdInput.value = "";
             formHeading.innerHTML = `<span class="material-icons-round">add_box</span> Lisa teade või sündmus`;
             submitBtn.textContent = "Avalda tahvlile";
             cancelEditBtn.classList.add('hidden');
         }
 
+        document.getElementById('openDatePickerBtn').addEventListener('click', () => {
+            const hiddenDateInput = document.getElementById('postDate');
+            if (hiddenDateInput.showPicker) {
+                hiddenDateInput.showPicker();
+            } else {
+                hiddenDateInput.click();
+            }
+        });
+
+        document.getElementById('postDate').addEventListener('change', () => {
+            const iso = document.getElementById('postDate').value;
+            document.getElementById('postDateDisplay').value = iso ? formatDateForDisplay(iso) : '';
+        });
+
+        document.getElementById('postDateDisplay').addEventListener('blur', () => {
+            const formatted = normalizeDateText(document.getElementById('postDateDisplay').value);
+            document.getElementById('postDateDisplay').value = formatted;
+            document.getElementById('postDate').value = parseDateValue(formatted) || '';
+        });
+
+        document.getElementById('postStartTime').addEventListener('blur', () => {
+            document.getElementById('postStartTime').value = normalizeTimeText(document.getElementById('postStartTime').value);
+        });
+
+        document.getElementById('postEndTime').addEventListener('blur', () => {
+            document.getElementById('postEndTime').value = normalizeTimeText(document.getElementById('postEndTime').value);
+        });
+
         // Globaalsed funktsioonid muutmiseks ja kustutamiseks
-        window.editPost = function(id, title, category, date, time, location, text) {
+        window.editPost = function(id, title, category, date, startTime, endTime, location, text) {
             editingPostIdInput.value = id;
             document.getElementById('postTitle').value = title;
             document.getElementById('postCategory').value = category;
+            document.getElementById('postDateDisplay').value = formatDateForDisplay(date || '');
             document.getElementById('postDate').value = date || '';
-            document.getElementById('postTime').value = time || '';
+            document.getElementById('postStartTime').value = startTime || '';
+            document.getElementById('postEndTime').value = endTime || '';
             document.getElementById('postLocation').value = location || '';
             document.getElementById('postText').value = text;
 
@@ -900,12 +989,23 @@
                     .sort((a, b) => a.date.localeCompare(b.date));
 
                 if (upcomingEvents.length > 0) {
-                    const next = upcomingEvents[0];
-                    nextEventBody.innerHTML = `
-                        <strong>${escapeHTML(next.title)}</strong><br>
-                        ${next.date} ${next.time ? ' kell ' + next.time : ''}<br>
-                        ${next.location ? '📍 ' + escapeHTML(next.location) : ''}
-                    `;
+                    const nextEvents = upcomingEvents.slice(0, 2);
+                    const nextEventHtml = nextEvents.map((event) => {
+                        let timeStr = '';
+                        if (event.startTime) {
+                            timeStr = ' kell ' + event.startTime;
+                            if (event.endTime) timeStr += ' – ' + event.endTime;
+                        }
+                        return `
+                            <div style="margin-bottom: 0.75rem;">
+                                <strong>${escapeHTML(event.title)}</strong><br>
+                                ${formatDateForDisplay(event.date)}${timeStr}<br>
+                                ${event.location ? '📍 ' + escapeHTML(event.location) : ''}
+                            </div>
+                        `;
+                    }).join('');
+
+                    nextEventBody.innerHTML = nextEventHtml;
                 } else {
                     nextEventBody.innerHTML = "Tulevasi kuupäevaga sündmusi pole.";
                 }
@@ -938,9 +1038,14 @@
                     // Kuupäeva ja asukoha plokk kaardil
                     let detailsHtml = '';
                     if (post.date || post.location) {
+                        let formattedTime = '';
+                        if (post.startTime) {
+                            formattedTime = 'kl ' + post.startTime;
+                            if (post.endTime) formattedTime += ' – ' + post.endTime;
+                        }
                         detailsHtml = `
                             <div class="post-details">
-                                ${post.date ? `<div><span class="material-icons-round">calendar_today</span> ${post.date}${post.time ? 'kl ' + post.time : ''}</div>` : ''}
+                                ${post.date ? `<div><span class="material-icons-round">calendar_today</span> ${formatDateForDisplay(post.date)}${formattedTime}</div>` : ''}
                                 ${post.location ? `<div><span class="material-icons-round">place</span> ${escapeHTML(post.location)}</div>` : ''}
                             </div>
                         `;
@@ -954,7 +1059,7 @@
                         const safeLoc = escapeAttr(post.location || '');
                         actionsHtml = `
                             <div class="card-actions">
-                                <button class="action-btn edit-btn" onclick="editPost('${post.id}', '${safeTitle}', '${post.category}', '${post.date || ''}', '${post.time || ''}', '${safeLoc}', '${safeText}')">
+                                <button class="action-btn edit-btn" onclick="editPost('${post.id}', '${safeTitle}', '${post.category}', '${post.date || ''}', '${post.startTime || ''}', '${post.endTime || ''}', '${safeLoc}', '${safeText}')">
                                     <span class="material-icons-round" style="font-size: 1rem;">edit</span> Muuda
                                 </button>
                                 <button class="action-btn delete-btn" onclick="deletePost('${post.id}')">
@@ -964,26 +1069,38 @@
                         `;
                     }
 
+                    const categoryClass = getCategoryClass(post.category);
                     const card = document.createElement('div');
                     card.className = 'post-card';
+                    card.dataset.postId = post.id;
                     card.innerHTML = `
-                        <div>
+                        <div class="collapsed-summary">
+                            <h3 class="post-title">${escapeHTML(post.title)}</h3>
+                            <div class="post-footer">
+                                <span>${post.date ? formatDateForDisplay(post.date) : dateStr}</span>
+                                <button class="collapse-btn" type="button" onclick="togglePostCollapse('${post.id}')">Ava</button>
+                            </div>
+                        </div>
+                        <div class="expanded-content">
                             <div class="post-meta">
                                 <span class="post-author">
                                     ${authorHtml}
                                     ${escapeHTML(post.authorName || 'Tundmatu')}
                                 </span>
-                                <span style="background: #e2e8f0; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 500;">${escapeHTML(post.category)}</span>
+                                <span class="category-badge ${categoryClass}">${escapeHTML(post.category)}</span>
                             </div>
                             <h3 class="post-title">${escapeHTML(post.title)}</h3>
                             ${detailsHtml}
                             <p class="post-content">${escapeHTML(post.text)}</p>
-                        </div>
-                        <div>
-                            ${calendarBtnsHtml}
-                            <div class="post-footer">
-                                <span>${dateStr}</span>
-                                ${actionsHtml}
+                            <div>
+                                ${calendarBtnsHtml}
+                                <div class="post-footer">
+                                    <span>${dateStr}</span>
+                                    <div class="card-actions">
+                                        ${actionsHtml || ''}
+                                        <button class="collapse-btn" type="button" onclick="togglePostCollapse('${post.id}')">Peida</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -1003,9 +1120,10 @@
             let datesParam = '';
             if (post.date) {
                 const cleanDate = post.date.replace(/-/g, '');
-                if (post.time) {
-                    const cleanTime = post.time.replace(/:/g, '') + '00';
-                    datesParam = `${cleanDate}T${cleanTime}/${cleanDate}T${cleanTime}`;
+                if (post.startTime) {
+                    const cleanStart = post.startTime.replace(/:/g, '') + '00';
+                    const cleanEnd = post.endTime ? (post.endTime.replace(/:/g, '') + '00') : (String(Number(post.startTime.split(':')[0]) + 1).padStart(2, '0') + post.startTime.split(':')[1] + '00');
+                    datesParam = `${cleanDate}T${cleanStart}/${cleanDate}T${cleanEnd}`;
                 } else {
                     datesParam = `${cleanDate}/${cleanDate}`;
                 }
@@ -1020,14 +1138,91 @@
             
             let startdt = post.date || '';
             let enddt = post.date || '';
-            if (post.time) {
-                startdt += `T${post.time}:00`;
-                enddt += `T${post.time}:00`;
+            if (post.startTime) {
+                startdt += `T${post.startTime}:00`;
+                enddt += `T${post.endTime || post.startTime}:00`;
             } else {
                 startdt += `T09:00:00`;
                 enddt += `T10:00:00`;
             }
             return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&body=${body}&location=${location}&startdt=${startdt}&enddt=${enddt}`;
+        }
+
+        function formatTime24h(timeText) {
+            if (!timeText) return '';
+            const [hours, minutes] = String(timeText).split(':');
+            if (hours === undefined || minutes === undefined) return timeText;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        function normalizeTimeText(timeText) {
+            if (!timeText) return '';
+            const cleaned = String(timeText).trim();
+            if (!/^\d{1,2}:?\d{0,2}$/.test(cleaned)) return '';
+
+            const digits = cleaned.replace(':', '');
+            if (digits.length < 3) return cleaned;
+
+            const hour = Number(digits.slice(0, 2));
+            const minute = Number(digits.slice(2, 4) || '00');
+
+            if (hour > 23 || minute > 59) return '';
+            return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        }
+
+        function normalizeDateText(dateText) {
+            if (!dateText) return '';
+            const cleaned = String(dateText).trim();
+            const iso = parseDateValue(cleaned);
+            if (iso) {
+                return formatDateForDisplay(iso);
+            }
+            return cleaned;
+        }
+
+        function parseDateValue(dateText) {
+            if (!dateText) return null;
+            const value = String(dateText).trim();
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+                return value;
+            }
+
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
+                const [day, month, year] = value.split('/');
+                if (Number(day) > 31 || Number(month) > 12) return null;
+                return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+
+            return null;
+        }
+
+        function formatDateForDisplay(dateText) {
+            if (!dateText) return '';
+            const iso = parseDateValue(dateText);
+            if (!iso) return dateText;
+
+            const [year, month, day] = iso.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        window.togglePostCollapse = function(postId) {
+            const card = document.querySelector(`.post-card[data-post-id="${postId}"]`);
+            if (!card) return;
+
+            const isCollapsed = card.classList.toggle('collapsed');
+            const buttons = card.querySelectorAll('.collapse-btn');
+            buttons.forEach((button) => {
+                button.textContent = isCollapsed ? 'Ava' : 'Peida';
+            });
+        }
+
+        function getCategoryClass(category) {
+            const value = String(category || '').toLowerCase();
+            if (value === 'kontsert') return 'category-kontsert';
+            if (value === 'laager') return 'category-laager';
+            if (value === 'koosolek') return 'category-koosolek';
+            return 'category-proov';
         }
 
         function escapeHTML(str) {
