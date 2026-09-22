@@ -1,165 +1,24 @@
 <!DOCTYPE html>
-<html lang="et">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sündmuste Portaal</title>
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
-}
-
-.container{
-    display:flex;
-    min-height:100vh;
-}
-
-.sidebar{
-    width:350px;
-    background:#fff;
-    border-right:1px solid #ddd;
-    padding:20px;
-}
-
-.content{
-    flex:1;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:20px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.event{
-    background:white;
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:10px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-input,
-textarea{
-    width:100%;
-    padding:10px;
-    margin-top:5px;
-    margin-bottom:10px;
-}
-
-button{
-    padding:10px 15px;
-    cursor:pointer;
-}
-
-.hidden{
-    display:none;
-}
-</style>
+<title>Firebase Test</title>
 </head>
-
 <body>
 
-<div class="container">
-
-    <div class="sidebar">
-
-        <div class="card">
-            <h3>Järgmine sündmus</h3>
-            <div id="nextEvent">
-                Sündmusi pole.
-            </div>
-        </div>
-
-        <div class="card">
-
-            <button id="loginBtn">
-                Logi Google'iga sisse
-            </button>
-
-            <button id="logoutBtn" class="hidden">
-                Logi välja
-            </button>
-
-            <br><br>
-
-            <div id="userInfo">
-                Külaline
-            </div>
-
-        </div>
-
-        <div class="card hidden" id="eventForm">
-
-            <h3>Lisa sündmus</h3>
-
-            <input
-                type="text"
-                id="title"
-                placeholder="Pealkiri">
-
-            <input
-                type="date"
-                id="date">
-
-            <textarea
-                id="description"
-                rows="4"
-                placeholder="Kirjeldus"></textarea>
-
-            <button id="saveBtn">
-                Salvesta
-            </button>
-
-        </div>
-
-    </div>
-
-    <div class="content">
-
-        <h1>Sündmused</h1>
-        <br>
-
-        <div id="events"></div>
-
-    </div>
-
-</div>
+<button id="loginBtn">
+Google Login
+</button>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 
 import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy
-}
-from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAgPjIYyXOIQNlrm2VYFM1-OseYmfFNiic",
@@ -167,5 +26,39 @@ const firebaseConfig = {
   projectId: "teadetetahvel",
   storageBucket: "teadetetahvel.firebasestorage.app",
   messagingSenderId: "156276179702",
-  appId: "1:156276179702:web:a33d916070535f6973e2d7",
-  measurementId: "G-4DLXQ58J76"
+  appId: "1:156276179702:web:a33d916070535f6973e2d7"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const provider = new GoogleAuthProvider();
+
+document.getElementById("loginBtn")
+.addEventListener("click", async () => {
+
+  try {
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    alert(
+      "Tere " +
+      result.user.displayName
+    );
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    alert(error.message);
+  }
+
+});
+
+</script>
+
+</body>
+</html>
