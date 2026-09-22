@@ -2,15 +2,76 @@
 <html lang="et">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sündmused</title>
+
+    style.css
 </head>
 <body>
 
-<h1>Sündmuste portaal</h1>
+<div class="container">
 
-<button id="loginBtn">
-    Logi Google'iga sisse
-</button>
+    <div class="sidebar">
+
+        <div class="card">
+            <h3>Järgmine sündmus</h3>
+            <div id="nextEvent">
+                Sündmusi pole.
+            </div>
+        </div>
+
+        <div class="card">
+
+            <button id="loginBtn">
+                Logi Google'iga sisse
+            </button>
+
+            <button id="logoutBtn" class="hidden">
+                Logi välja
+            </button>
+
+            <p id="userInfo"></p>
+
+        </div>
+
+        <div class="card hidden" id="addEventCard">
+
+            <h3>Lisa sündmus</h3>
+
+            <input
+                type="text"
+                id="title"
+                placeholder="Pealkiri">
+
+            <input
+                type="date"
+                id="date">
+
+            <textarea
+                id="description"
+                placeholder="Kirjeldus">
+            </textarea>
+
+            <button id="saveBtn">
+                Salvesta
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <h1>Sündmused</h1>
+        <br>
+
+        <div id="events"></div>
+
+    </div>
+
+</div>
+
+app.jsscript>
 
 </body>
 </html>
