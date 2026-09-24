@@ -610,7 +610,8 @@
   <script>
     const SUPABASE_URL = 'https://hinzfauwqxoxebkcszgx.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_vnXu_qU819TJZhMgju9tMw_G9glh51R';
-
+	const start_time = createLocalISO(dateStart, timeStart);
+    const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
