@@ -610,14 +610,25 @@
   <script>
     const SUPABASE_URL = 'https://hinzfauwqxoxebkcszgx.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_vnXu_qU819TJZhMgju9tMw_G9glh51R';
-	const start_time = createLocalISO(dateStart, timeStart);
-    const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let allEventsData = [];
     let allLinksData = [];
     const expandedColumns = { Proov: false, Kontsert: false };
+
+    // Ajatöötluse abifunktsioon, mis hoiab kellaajad kohalikus ajas (Eesti aeg)
+    function createLocalISO(dateString, timeString) {
+      if (!dateString || !timeString) return null;
+      const localDate = new Date(`${dateString}T${timeString}:00`);
+      
+      const tzOffsetMinutes = -localDate.getTimezoneOffset();
+      const sign = tzOffsetMinutes >= 0 ? '+' : '-';
+      const absHours = String(Math.floor(Math.abs(tzOffsetMinutes) / 60)).padStart(2, '0');
+      const absMins = String(Math.abs(tzOffsetMinutes) % 60).padStart(2, '0');
+      
+      return `${dateString}T${timeString}:00${sign}${absHours}:${absMins}`;
+    }
 
     async function loginWithGoogle() {
       const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -633,48 +644,47 @@
     }
 
     async function checkAuthStatus() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  currentUser = null; // Vaikimisi pole admin
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      currentUser = null;
 
-  const loginBtn = document.getElementById('btn-login');
-  const userProfile = document.getElementById('user-profile');
-  const adminActions = document.getElementById('admin-actions');
-  const authOnlyBtns = document.querySelectorAll('.auth-only');
+      const loginBtn = document.getElementById('btn-login');
+      const userProfile = document.getElementById('user-profile');
+      const adminActions = document.getElementById('admin-actions');
+      const authOnlyBtns = document.querySelectorAll('.auth-only');
 
-  if (user) {
-    // Kontrollime, kas sisselogitud e-post on adminnide tabelis
-    const { data: adminData } = await supabaseClient
-      .from('admins')
-      .select('*')
-      .eq('email', user.email)
-      .single();
+      if (user) {
+        const { data: adminData } = await supabaseClient
+          .from('admins')
+          .select('*')
+          .eq('email', user.email)
+          .single();
 
-    if (adminData) {
-      currentUser = user; // Kasutaja on ametlikult admin
+        if (adminData) {
+          currentUser = user;
+        }
+
+        loginBtn.style.display = 'none';
+        userProfile.style.display = 'flex';
+        
+        if (currentUser) {
+          adminActions.style.display = 'block';
+          authOnlyBtns.forEach(btn => btn.style.display = 'inline-block');
+        } else {
+          adminActions.style.display = 'none';
+          authOnlyBtns.forEach(btn => btn.style.display = 'none');
+        }
+
+        document.getElementById('user-name').innerText = user.user_metadata.full_name || user.email;
+        document.getElementById('user-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/36';
+      } else {
+        loginBtn.style.display = 'block';
+        userProfile.style.display = 'none';
+        adminActions.style.display = 'none';
+        authOnlyBtns.forEach(btn => btn.style.display = 'none');
+      }
+
+      loadData();
     }
-
-    loginBtn.style.display = 'none';
-    userProfile.style.display = 'flex';
-    
-    if (currentUser) {
-      adminActions.style.display = 'block';
-      authOnlyBtns.forEach(btn => btn.style.display = 'inline-block');
-    } else {
-      adminActions.style.display = 'none';
-      authOnlyBtns.forEach(btn => btn.style.display = 'none');
-    }
-
-    document.getElementById('user-name').innerText = user.user_metadata.full_name || user.email;
-    document.getElementById('user-avatar').src = user.user_metadata.avatar_url || 'https://via.placeholder.com/36';
-  } else {
-    loginBtn.style.display = 'block';
-    userProfile.style.display = 'none';
-    adminActions.style.display = 'none';
-    authOnlyBtns.forEach(btn => btn.style.display = 'none');
-  }
-
-  loadData();
-}
 
     function toggleEndDateInput(formId) {
       if (formId === 'eventForm') {
@@ -689,7 +699,6 @@
     function parseIsoDate(isoString) {
       if (!isoString) return { date: '', time: '' };
       
-      // Loome kuupäevast objekti, mis arvestab brauseri kohalikku ajavööndit (Eesti aeg)
       const d = new Date(isoString);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -740,7 +749,6 @@
       renderKanbanAndUpcoming();
     }
 
-    // Sulge kõik kalendri rippmenüüd, kui klikitakse mujale
     window.onclick = function(event) {
       if (!event.target.matches('.btn-cal-menu')) {
         var dropdowns = document.getElementsByClassName("cal-dropdown-content");
@@ -939,7 +947,8 @@
       toggleEndDateInput('eventForm');
     }
 
-   document.getElementById('eventForm').addEventListener('submit', async (e) => {
+    // Uue sündmuse lisamise handler
+    document.getElementById('eventForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser) return alert('Pead olema sisse logitud!');
 
@@ -952,7 +961,6 @@
       const type = document.getElementById('event-type').value;
       const notes = document.getElementById('event-notes').value;
 
-      // Kasutame uut kindlat funktsiooni
       const start_time = createLocalISO(dateStart, timeStart);
       const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
 
@@ -1056,40 +1064,41 @@
       document.getElementById('editModal').style.display = 'none';
     }
 
-   document.getElementById('editForm').addEventListener('submit', async (e) => {
+    // Olemasoleva sündmuse muutmise handler
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser) return alert('Pead olema sisse logitud!');
 
-      const title = document.getElementById('event-title').value;
-      const dateStart = document.getElementById('event-date-start').value;
-      const dateEnd = document.getElementById('toggle-end-date').checked ? document.getElementById('event-date-end').value : null;
-      const timeStart = document.getElementById('event-time-start').value;
-      const timeEnd = document.getElementById('event-time-end').value;
-      const location = document.getElementById('event-location').value;
-      const type = document.getElementById('event-type').value;
-      const notes = document.getElementById('event-notes').value;
+      const id = document.getElementById('edit-id').value;
+      const title = document.getElementById('edit-title').value;
+      const dateStart = document.getElementById('edit-date-start').value;
+      const dateEnd = document.getElementById('edit-toggle-end-date').checked ? document.getElementById('edit-date-end').value : null;
+      const timeStart = document.getElementById('edit-time-start').value;
+      const timeEnd = document.getElementById('edit-time-end').value;
+      const location = document.getElementById('edit-location').value;
+      const type = document.getElementById('edit-type').value;
+      const notes = document.getElementById('edit-notes').value;
 
-      // Kasutame uut kindlat funktsiooni
       const start_time = createLocalISO(dateStart, timeStart);
       const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
 
       const { error } = await supabaseClient
         .from('events')
-        .insert([{ 
+        .update({ 
           title, 
           start_time, 
           end_time, 
           end_date: dateEnd, 
           location, 
           type, 
-          notes,
-          user_id: currentUser.id 
-        }]);
+          notes 
+        })
+        .eq('id', id);
 
       if (error) {
-        alert('Salvestamine ebaõnnestus: ' + error.message);
+        alert('Muutmine ebaõnnestus: ' + error.message);
       } else {
-        closeAddEventModal();
+        closeEditModal();
         loadData();
       }
     });
