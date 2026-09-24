@@ -84,17 +84,17 @@
     /* Ülemine sektsioon */
     .top-section {
       display: grid;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 320px 320px 1fr;
       gap: 25px;
       margin-bottom: 30px;
       align-items: start;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 950px) {
       .top-section { grid-template-columns: 1fr; }
     }
 
-    /* Post-it vasakul nurgas */
+    /* Post-it vasakul nurgas (sündmused ja sünnipäevad) */
     .upcoming-postit {
       background: #ff7675;
       color: #fff;
@@ -106,6 +106,11 @@
       min-height: 220px;
       display: flex;
       flex-direction: column;
+    }
+
+    .upcoming-postit.birthday-postit {
+      background: #a29bfe;
+      transform: rotate(1deg);
     }
 
     .upcoming-postit::before {
@@ -150,12 +155,6 @@
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .card h3 {
-      margin-top: 0;
-      margin-bottom: 15px;
-      color: #1e293b;
     }
 
     form {
@@ -435,12 +434,21 @@
 
   <!-- ÜLEMINE SEKTSIOON -->
   <div class="top-section">
-    <!-- Vasakus nurgas Esiletõstetud Post-it (Nähtav kõigile) -->
+    <!-- Järgmised 2 sündmust -->
     <div class="upcoming-postit">
       <h3>📌 Järgmised 2 sündmust</h3>
       <div id="upcoming-list">
         <p style="font-size: 13px;">Laadimine...</p>
       </div>
+    </div>
+
+    <!-- Sünnipäevad sel kuul -->
+    <div class="upcoming-postit birthday-postit">
+      <h3>🎂 Sünnipäevad sel kuul</h3>
+      <div id="birthdays-list">
+        <p style="font-size: 13px;">Laadimine...</p>
+      </div>
+      <button class="btn-add-link auth-only" style="display:none; margin-top: auto; background: rgba(0,0,0,0.2);" onclick="openAddBirthdayModal()">+ Lisa sünnipäev</button>
     </div>
 
     <!-- ADMIN SEKTSIOON (Nupud sisselogitule) -->
@@ -606,6 +614,24 @@
     </div>
   </div>
 
+  <!-- SÜNNIPÄEVA LISAMISE HÜPIKAKEN (MODAL) -->
+  <div class="modal-overlay" id="birthdayModal" style="display: none;">
+    <div class="modal-card">
+      <h3 style="margin-top:0;">Lisa sünnipäev</h3>
+      <form id="birthdayForm">
+        <input type="text" id="b-name" placeholder="Laulja nimi" required>
+        <div class="form-group">
+          <label>Sünnikuupäev</label>
+          <input type="date" id="b-date" required>
+        </div>
+        <div class="form-row" style="margin-top: 10px;">
+          <button type="submit">Salvesta sünnipäev</button>
+          <button type="button" class="btn-secondary" onclick="closeAddBirthdayModal()">Tühista</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT -->
   <script>
     const SUPABASE_URL = 'https://hinzfauwqxoxebkcszgx.supabase.co';
@@ -615,9 +641,9 @@
     let currentUser = null;
     let allEventsData = [];
     let allLinksData = [];
+    let allBirthdaysData = [];
     const expandedColumns = { Proov: false, Kontsert: false };
 
-    // Ajatöötluse abifunktsioon, mis hoiab kellaajad kohalikus ajas (Eesti aeg)
     function createLocalISO(dateString, timeString) {
       if (!dateString || !timeString) return null;
       const localDate = new Date(`${dateString}T${timeString}:00`);
@@ -743,8 +769,13 @@
         .select('*')
         .order('created_at', { ascending: false });
 
+      const { data: birthdays } = await supabaseClient
+        .from('birthdays')
+        .select('*');
+
       allEventsData = events || [];
       allLinksData = links || [];
+      allBirthdaysData = birthdays || [];
 
       renderKanbanAndUpcoming();
     }
@@ -839,6 +870,36 @@
             ${e.notes ? `<div style="font-style:italic; font-size:11px; margin-top:2px; opacity:0.8;">💬 ${escapeHtml(e.notes)}</div>` : ''}
           `;
           upcomingContainer.appendChild(div);
+        });
+      }
+
+      // Sünnipäevade kuvamine
+      const birthdaysContainer = document.getElementById('birthdays-list');
+      const currentMonth = new Date().getMonth() + 1;
+
+      const thisMonthBirthdays = allBirthdaysData.filter(b => {
+        const bDate = new Date(b.birth_date);
+        return (bDate.getMonth() + 1) === currentMonth;
+      }).sort((a, b) => {
+        return new Date(a.birth_date).getDate() - new Date(b.birth_date).getDate();
+      });
+
+      if (thisMonthBirthdays.length === 0) {
+        birthdaysContainer.innerHTML = '<p style="font-size: 13px;">Sel kuul sünnipäevi pole.</p>';
+      } else {
+        birthdaysContainer.innerHTML = '';
+        thisMonthBirthdays.forEach(b => {
+          const bDate = new Date(b.birth_date);
+          const day = bDate.getDate();
+          const month = bDate.getMonth() + 1;
+          
+          const div = document.createElement('div');
+          div.className = 'upcoming-item';
+          div.innerHTML = `
+            <strong>🎁 ${escapeHtml(b.name)}</strong>
+            <span>📅 ${day}.${month}</span>
+          `;
+          birthdaysContainer.appendChild(div);
         });
       }
 
@@ -947,7 +1008,16 @@
       toggleEndDateInput('eventForm');
     }
 
-    // Uue sündmuse lisamise handler
+    function openAddBirthdayModal() {
+      if (!currentUser) return alert('Pead olema sisse logitud!');
+      document.getElementById('birthdayModal').style.display = 'flex';
+    }
+
+    function closeAddBirthdayModal() {
+      document.getElementById('birthdayModal').style.display = 'none';
+      document.getElementById('birthdayForm').reset();
+    }
+
     document.getElementById('eventForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser) return alert('Pead olema sisse logitud!');
@@ -981,6 +1051,25 @@
         alert('Salvestamine ebaõnnestus: ' + error.message);
       } else {
         closeAddEventModal();
+        loadData();
+      }
+    });
+
+    document.getElementById('birthdayForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return alert('Pead olema sisse logitud!');
+
+      const name = document.getElementById('b-name').value;
+      const birth_date = document.getElementById('b-date').value;
+
+      const { error } = await supabaseClient
+        .from('birthdays')
+        .insert([{ name, birth_date }]);
+
+      if (error) {
+        alert('Sünnipäeva lisamine ebaõnnestus: ' + error.message);
+      } else {
+        closeAddBirthdayModal();
         loadData();
       }
     });
@@ -1064,7 +1153,6 @@
       document.getElementById('editModal').style.display = 'none';
     }
 
-    // Olemasoleva sündmuse muutmise handler
     document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser) return alert('Pead olema sisse logitud!');
