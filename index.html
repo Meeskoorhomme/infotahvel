@@ -938,7 +938,7 @@
       toggleEndDateInput('eventForm');
     }
 
-    document.getElementById('eventForm').addEventListener('submit', async (e) => {
+   document.getElementById('eventForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!currentUser) return alert('Pead olema sisse logitud!');
 
@@ -951,24 +951,9 @@
       const type = document.getElementById('event-type').value;
       const notes = document.getElementById('event-notes').value;
 
-      // ---- ÕIGE JA TURVALINE AJATÖÖTLUS ----
-      const [sYear, sMonth, sDay] = dateStart.split('-').map(Number);
-      const [sHours, sMinutes] = timeStart.split(':').map(Number);
-      
-      // Loome kuupäeva kohaliku aja numbrite põhjal (kuu on 0-põhine, seega sMonth - 1)
-      const startDateLocal = new Date(sYear, sMonth - 1, sDay, sHours, sMinutes, 0);
-      const start_time = startDateLocal.toISOString();
-
-      let end_time = null;
-      if (timeEnd) {
-        const [eHours, eMinutes] = timeEnd.split(':').map(Number);
-        const endDateStr = dateEnd || dateStart; // Kui eraldi lõpukuupäeva pole, on see sama mis alguskuupäev
-        const [eYear, eMonth, eDay] = endDateStr.split('-').map(Number);
-        
-        const endDateLocal = new Date(eYear, eMonth - 1, eDay, eHours, eMinutes, 0);
-        end_time = endDateLocal.toISOString();
-      }
-      // -------------------------------------
+      // Kasutame uut kindlat funktsiooni
+      const start_time = createLocalISO(dateStart, timeStart);
+      const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
 
       const { error } = await supabaseClient
         .from('events')
@@ -1070,55 +1055,40 @@
       document.getElementById('editModal').style.display = 'none';
     }
 
-    document.getElementById('editForm').addEventListener('submit', async (e) => {
+   document.getElementById('eventForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!currentUser) return alert('Pead olema sisse logitud!');
 
-      const id = document.getElementById('edit-id').value;
-      const title = document.getElementById('edit-title').value;
-      const dateStart = document.getElementById('edit-date-start').value;
-      const dateEnd = document.getElementById('edit-toggle-end-date').checked ? document.getElementById('edit-date-end').value : null;
-      const timeStart = document.getElementById('edit-time-start').value;
-      const timeEnd = document.getElementById('edit-time-end').value;
-      const location = document.getElementById('edit-location').value;
-      const type = document.getElementById('edit-type').value;
-      const notes = document.getElementById('edit-notes').value;
+      const title = document.getElementById('event-title').value;
+      const dateStart = document.getElementById('event-date-start').value;
+      const dateEnd = document.getElementById('toggle-end-date').checked ? document.getElementById('event-date-end').value : null;
+      const timeStart = document.getElementById('event-time-start').value;
+      const timeEnd = document.getElementById('event-time-end').value;
+      const location = document.getElementById('event-location').value;
+      const type = document.getElementById('event-type').value;
+      const notes = document.getElementById('event-notes').value;
 
-      // ---- ÕIGE JA TURVALINE AJATÖÖTLUS ----
-      const [sYear, sMonth, sDay] = dateStart.split('-').map(Number);
-      const [sHours, sMinutes] = timeStart.split(':').map(Number);
-      
-      // Loome kuupäeva kohaliku aja numbrite põhjal (kuu on 0-põhine, seega sMonth - 1)
-      const startDateLocal = new Date(sYear, sMonth - 1, sDay, sHours, sMinutes, 0);
-      const start_time = startDateLocal.toISOString();
-
-      let end_time = null;
-      if (timeEnd) {
-        const [eHours, eMinutes] = timeEnd.split(':').map(Number);
-        const endDateStr = dateEnd || dateStart; // Kui lõpukuupäeva pole eraldi valitud, on see sama mis alguskuupäev
-        const [eYear, eMonth, eDay] = endDateStr.split('-').map(Number);
-        
-        const endDateLocal = new Date(eYear, eMonth - 1, eDay, eHours, eMinutes, 0);
-        end_time = endDateLocal.toISOString();
-      }
-      // -------------------------------------
+      // Kasutame uut kindlat funktsiooni
+      const start_time = createLocalISO(dateStart, timeStart);
+      const end_time = timeEnd ? createLocalISO(dateEnd || dateStart, timeEnd) : null;
 
       const { error } = await supabaseClient
         .from('events')
-        .update({
-          title,
-          start_time,
-          end_time,
-          end_date: dateEnd,
-          location,
-          type,
-          notes
-        })
-        .eq('id', id);
+        .insert([{ 
+          title, 
+          start_time, 
+          end_time, 
+          end_date: dateEnd, 
+          location, 
+          type, 
+          notes,
+          user_id: currentUser.id 
+        }]);
 
       if (error) {
-        alert('Muutmine ebaõnnestus: ' + error.message);
+        alert('Salvestamine ebaõnnestus: ' + error.message);
       } else {
-        closeEditModal();
+        closeAddEventModal();
         loadData();
       }
     });
