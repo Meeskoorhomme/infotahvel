@@ -597,7 +597,7 @@
     async function loginWithGoogle() {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin }
+        options: { redirectTo: 'https://meeskoorhomme.github.io/infotahvel/' }
       });
       if (error) alert('Sisselogimisel tekkis viga: ' + error.message);
     }
